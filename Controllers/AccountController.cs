@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using SupertexWeb.Data;
 using SupertexWeb.Models;
+using SupertexWeb.Services;
 using System.Security.Claims;
 
 namespace SupertexWeb.Controllers
@@ -15,6 +16,7 @@ namespace SupertexWeb.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
+        private readonly ILogger<AccountController> _logger;
         private readonly PasswordHasher<AdminUser> _passwordHasher = new();
 
         private const int MaxFailedAttempts = 5;
@@ -23,17 +25,36 @@ namespace SupertexWeb.Controllers
         public AccountController(
             ApplicationDbContext context,
             IConfiguration configuration,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            ILogger<AccountController> logger)
         {
             _context = context;
             _configuration = configuration;
             _cache = cache;
+            _logger = logger;
         }
 
         private async Task EnsureSeedSuperAdminAsync()
         {
             if (await _context.AdminUsers.AnyAsync())
             {
+                return;
+            }
+
+            // KHÔNG còn mật khẩu mặc định trong mã nguồn.
+            // Mật khẩu ban đầu phải được cấp qua User Secrets / biến môi trường:
+            //   AdminAccount:InitialPassword  (mật khẩu thường, sẽ được băm khi tạo tài khoản)
+            //   hoặc AdminAccount:PasswordHash (mã băm đã tạo sẵn)
+            var configuredHash = _configuration["AdminAccount:PasswordHash"];
+            var initialPassword = _configuration["AdminAccount:InitialPassword"];
+            var hasHash = !string.IsNullOrWhiteSpace(configuredHash);
+            var hasPassword = !string.IsNullOrWhiteSpace(initialPassword);
+
+            if (!hasHash && !hasPassword)
+            {
+                _logger.LogError(
+                    "Chưa có tài khoản admin nào và chưa cấu hình AdminAccount:InitialPassword " +
+                    "(hoặc AdminAccount:PasswordHash). Không tạo tài khoản mặc định.");
                 return;
             }
 
@@ -50,15 +71,9 @@ namespace SupertexWeb.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            var configuredHash = _configuration["AdminAccount:PasswordHash"];
-            if (!string.IsNullOrWhiteSpace(configuredHash) && !configuredHash.StartsWith("DÁN_"))
-            {
-                seedUser.PasswordHash = configuredHash.Trim();
-            }
-            else
-            {
-                seedUser.PasswordHash = _passwordHasher.HashPassword(seedUser, "Supertex@2026!Admin");
-            }
+            seedUser.PasswordHash = hasHash
+                ? configuredHash!.Trim()
+                : _passwordHasher.HashPassword(seedUser, initialPassword!);
 
             _context.AdminUsers.Add(seedUser);
             await _context.SaveChangesAsync();
@@ -116,22 +131,10 @@ namespace SupertexWeb.Controllers
                 _cache.Remove(lockKey);
 
                 var hasFull = user.IsSuperAdmin || user.CanFullAccess;
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim("FullName", user.FullName),
-                    new Claim("IsSuperAdmin", user.IsSuperAdmin.ToString()),
-                    new Claim("CanFullAccess", hasFull.ToString()),
-                    new Claim("CanManageProducts", (hasFull || user.CanManageProducts).ToString()),
-                    new Claim("CanManagePosts", (hasFull || user.CanManagePosts).ToString()),
-                    new Claim("CanManageCustomers", (hasFull || user.CanManageCustomers).ToString())
-                };
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
+                    AdminClaims.BuildPrincipal(user),
                     new AuthenticationProperties { IsPersistent = false });
 
                 if (!hasFull)

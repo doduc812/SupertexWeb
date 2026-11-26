@@ -65,7 +65,7 @@
 
         <!-- Nội dung chi tiết bài viết -->
         <div class="text-secondary lh-lg fs-6 post-content-body" style="text-align: justify;">
-            @Html.Raw(Model.Content?.Replace("\n", "<br />"))
+            @Html.Raw(SupertexWeb.Services.RichTextSanitizer.Sanitize(Model.Content)?.Replace("\n", "<br />"))
         </div>
 
         <hr class="my-5">

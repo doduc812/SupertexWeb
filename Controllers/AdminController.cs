@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using SupertexWeb.Data;
 using SupertexWeb.Models;
+using SupertexWeb.Services;
 
 namespace SupertexWeb.Controllers
 {
@@ -103,6 +104,8 @@ namespace SupertexWeb.Controllers
         // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(9_000_000)]
+        [RequestFormLimits(ValueLengthLimit = 8_000_000)] // ảnh cắt gửi lên dạng Base64 nên cần cho phép giá trị dài
         public async Task<IActionResult> Create(Product model, string? croppedImageBase64)
         {
             if (DenyIfNotAllowed(HasProductAccess()) is { } denied) return denied;
@@ -149,21 +152,23 @@ namespace SupertexWeb.Controllers
             // Bước C: Xử lý lưu ảnh từ chuỗi Base64 do công cụ cắt ảnh giao diện gửi lên
             if (!string.IsNullOrEmpty(croppedImageBase64))
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "products");
-                if (!Directory.Exists(uploadsFolder))
+                if (!ImageUploadHelper.TryDecodeBase64(croppedImageBase64, out var imageBytes))
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    model.Code = string.Empty;
+                    ModelState.AddModelError(string.Empty, "Dữ liệu ảnh không hợp lệ hoặc quá lớn (tối đa 5 MB).");
+                    return View(model);
                 }
 
-                // Tách lấy phần dữ liệu base64 thực tế và chuyển thành byte mảng
-                string base64Data = croppedImageBase64.Substring(croppedImageBase64.IndexOf(",") + 1);
-                byte[] imageBytes = Convert.FromBase64String(base64Data);
+                var saved = await ImageUploadHelper.SaveBytesAsync(
+                    imageBytes, _env.WebRootPath, "products", $"{autoCode.ToLowerInvariant()}-");
+                if (!saved.Success)
+                {
+                    model.Code = string.Empty;
+                    ModelState.AddModelError(string.Empty, saved.Error!);
+                    return View(model);
+                }
 
-                string fileName = $"{autoCode.ToLowerInvariant()}.jpg";
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                await System.IO.File.WriteAllBytesAsync(filePath, imageBytes);
-                model.ImageUrl = $"/images/products/{fileName}";
+                model.ImageUrl = saved.Url;
             }
 
             // Bước D: Ghi thời gian tạo và lưu xuống Database
@@ -196,6 +201,7 @@ namespace SupertexWeb.Controllers
         // ==========================================
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(ImageUploadHelper.MaxRequestBytes)]
         public async Task<IActionResult> Edit(int id, Product model, IFormFile? imageFile)
         {
             if (DenyIfNotAllowed(HasProductAccess()) is { } denied) return denied;
@@ -233,33 +239,17 @@ namespace SupertexWeb.Controllers
                 // Nếu người quản lý tải lên ảnh mới thì thay thế file cũ
                 if (imageFile != null && imageFile.Length > 0)
                 {
-                    string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "products");
-                    if (!Directory.Exists(uploadsFolder))
+                    // Lưu ảnh mới (tên khớp SKU) TRƯỚC; chỉ khi thành công mới xóa ảnh cũ
+                    var saved = await ImageUploadHelper.SaveAsync(
+                        imageFile, _env.WebRootPath, "products", $"{existingProduct.Code.ToLowerInvariant()}-");
+                    if (!saved.Success)
                     {
-                        Directory.CreateDirectory(uploadsFolder);
+                        ModelState.AddModelError(string.Empty, saved.Error!);
+                        return View(model);
                     }
 
-                    // Xóa ảnh cũ nếu tồn tại
-                    if (!string.IsNullOrEmpty(existingProduct.ImageUrl))
-                    {
-                        string oldPhysicalPath = Path.Combine(_env.WebRootPath, existingProduct.ImageUrl.TrimStart('/'));
-                        if (System.IO.File.Exists(oldPhysicalPath))
-                        {
-                            System.IO.File.Delete(oldPhysicalPath);
-                        }
-                    }
-
-                    // Lưu ảnh mới với tên khớp SKU
-                    string fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
-                    string fileName = $"{existingProduct.Code.ToLowerInvariant()}-{Guid.NewGuid().ToString().Substring(0, 4)}{fileExtension}";
-                    string filePath = Path.Combine(uploadsFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await imageFile.CopyToAsync(stream);
-                    }
-
-                    existingProduct.ImageUrl = $"/images/products/{fileName}";
+                    ImageUploadHelper.DeleteManaged(existingProduct.ImageUrl, _env.WebRootPath, "products");
+                    existingProduct.ImageUrl = saved.Url;
                 }
 
                 _context.Update(existingProduct);
@@ -294,15 +284,8 @@ namespace SupertexWeb.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
-                // Xóa file ảnh vật lý trong thư mục wwwroot nếu tồn tại
-                if (!string.IsNullOrEmpty(product.ImageUrl))
-                {
-                    string physicalPath = Path.Combine(_env.WebRootPath, product.ImageUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(physicalPath))
-                    {
-                        System.IO.File.Delete(physicalPath);
-                    }
-                }
+                // Xóa file ảnh vật lý trong thư mục wwwroot (chỉ xóa file nằm đúng trong images/products)
+                ImageUploadHelper.DeleteManaged(product.ImageUrl, _env.WebRootPath, "products");
 
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
@@ -331,6 +314,7 @@ namespace SupertexWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(ImageUploadHelper.MaxRequestBytes)]
         public async Task<IActionResult> Hero(HeroSection model, IFormFile? imageFile)
         {
             if (DenyIfNotAllowed(HasFullAccess()) is { } denied) return denied;
@@ -353,22 +337,17 @@ namespace SupertexWeb.Controllers
 
             if (imageFile != null && imageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "partners");
-                if (!Directory.Exists(uploadsFolder))
+                var saved = await ImageUploadHelper.SaveAsync(
+                    imageFile, _env.WebRootPath, "partners", "home_background_");
+                if (!saved.Success)
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    ModelState.AddModelError(string.Empty, saved.Error!);
+                    return View(model);
                 }
 
-                string fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
-                string fileName = $"home_background_{Guid.NewGuid().ToString().Substring(0, 4)}{fileExtension}";
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await imageFile.CopyToAsync(stream);
-                }
-
-                existingHero.ImageUrl = $"/images/partners/{fileName}";
+                // Chỉ xóa ảnh do hệ thống tự tạo (home_background_xxx), không đụng tới ảnh mặc định home_background.png
+                ImageUploadHelper.DeleteManaged(existingHero.ImageUrl, _env.WebRootPath, "partners", "home_background_");
+                existingHero.ImageUrl = saved.Url;
             }
 
             _context.Update(existingHero);
@@ -398,6 +377,7 @@ namespace SupertexWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(ImageUploadHelper.MaxRequestBytes)]
         public async Task<IActionResult> HomeAbout(HomeAboutSection model, IFormFile? imageFile)
         {
             if (DenyIfNotAllowed(HasFullAccess()) is { } denied) return denied;
@@ -416,22 +396,16 @@ namespace SupertexWeb.Controllers
 
             if (imageFile != null && imageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "partners");
-                if (!Directory.Exists(uploadsFolder))
+                var saved = await ImageUploadHelper.SaveAsync(
+                    imageFile, _env.WebRootPath, "partners", "home_about_");
+                if (!saved.Success)
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    ModelState.AddModelError(string.Empty, saved.Error!);
+                    return View(model);
                 }
 
-                string fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
-                string fileName = $"home_about_{Guid.NewGuid().ToString().Substring(0, 4)}{fileExtension}";
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await imageFile.CopyToAsync(stream);
-                }
-
-                existing.ImageUrl = $"/images/partners/{fileName}";
+                ImageUploadHelper.DeleteManaged(existing.ImageUrl, _env.WebRootPath, "partners", "home_about_");
+                existing.ImageUrl = saved.Url;
             }
 
             _context.Update(existing);
@@ -474,28 +448,40 @@ namespace SupertexWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(ImageUploadHelper.MaxRequestBytes)]
         public async Task<IActionResult> Upsert(Post model, IFormFile? imageFile)
         {
             if (DenyIfNotAllowed(HasPostAccess()) is { } denied) return denied;
 
+            // Kiểm tra dữ liệu form (ví dụ: bắt buộc nhập tiêu đề) TRƯỚC khi lưu ảnh hay ghi DB
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Làm sạch HTML của bài viết trước khi lưu (chống chèn script / mã độc vào trang công khai)
+            model.Content = RichTextSanitizer.Sanitize(model.Content);
+
+            string? oldCoverToDelete = null;
             if (imageFile != null && imageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "posts");
-                if (!Directory.Exists(uploadsFolder))
+                var saved = await ImageUploadHelper.SaveAsync(
+                    imageFile, _env.WebRootPath, "posts", "post_");
+                if (!saved.Success)
                 {
-                    Directory.CreateDirectory(uploadsFolder);
+                    ModelState.AddModelError(string.Empty, saved.Error!);
+                    return View(model);
                 }
 
-                string fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
-                string fileName = $"post_{Guid.NewGuid().ToString().Substring(0, 6)}{fileExtension}";
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (model.Id != 0)
                 {
-                    await imageFile.CopyToAsync(stream);
+                    oldCoverToDelete = await _context.Posts.AsNoTracking()
+                        .Where(p => p.Id == model.Id)
+                        .Select(p => p.ImageUrl)
+                        .FirstOrDefaultAsync();
                 }
 
-                model.ImageUrl = $"/images/posts/{fileName}";
+                model.ImageUrl = saved.Url;
             }
 
             if (model.Id == 0)
@@ -520,6 +506,10 @@ namespace SupertexWeb.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // Lưu DB thành công rồi mới xóa ảnh bìa cũ (tránh mất ảnh nếu lưu lỗi)
+            ImageUploadHelper.DeleteManaged(oldCoverToDelete, _env.WebRootPath, "posts", "post_");
+
             return RedirectToAction(nameof(Posts));
         }
 
@@ -532,14 +522,18 @@ namespace SupertexWeb.Controllers
             var post = await _context.Posts.FindAsync(id);
             if (post != null)
             {
+                var coverToDelete = post.ImageUrl;
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
+                ImageUploadHelper.DeleteManaged(coverToDelete, _env.WebRootPath, "posts", "post_");
                 TempData["SuccessMessage"] = "Đã xóa bài viết thành công!";
             }
             return RedirectToAction(nameof(Posts));
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(ImageUploadHelper.MaxRequestBytes)]
         public async Task<IActionResult> UploadEditorImage(IFormFile upload)
         {
             if (!HasPostAccess())
@@ -549,23 +543,12 @@ namespace SupertexWeb.Controllers
 
             if (upload != null && upload.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_env.WebRootPath, "images", "PostNews");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
+                var saved = await ImageUploadHelper.SaveAsync(
+                    upload, _env.WebRootPath, "PostNews", "news_");
 
-                string fileExtension = Path.GetExtension(upload.FileName).ToLowerInvariant();
-                string fileName = $"news_{Guid.NewGuid().ToString().Substring(0, 8)}{fileExtension}";
-                string filePath = Path.Combine(uploadsFolder, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await upload.CopyToAsync(stream);
-                }
-
-                string url = $"/images/PostNews/{fileName}";
-                return Json(new { success = true, url = url });
+                return saved.Success
+                    ? Json(new { success = true, url = saved.Url })
+                    : Json(new { success = false, message = saved.Error });
             }
             return Json(new { success = false, message = "Không có file nào được tải lên." });
         }

@@ -31,6 +31,8 @@
                     <input type="hidden" asp-for="ImageUrl" />
                     <input type="hidden" asp-for="PublishedDate" />
 
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                     <div class="mb-3">
                         <label asp-for="Title" class="form-label fw-semibold">Tiêu đề bài viết</label>
                         <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề bài viết..." />
@@ -112,6 +114,8 @@
     function uploadImageAndInsert(file) {
         let formData = new FormData();
         formData.append("upload", file);
+        // Token chống giả mạo yêu cầu (CSRF), lấy từ form bài viết
+        formData.append("__RequestVerificationToken", $('input[name="__RequestVerificationToken"]').first().val());
 
         $.ajax({
             url: '/Admin/UploadEditorImage',

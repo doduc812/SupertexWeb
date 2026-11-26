@@ -159,18 +159,82 @@ namespace SupertexWeb.Controllers
             }
 
             // 3. Giới hạn tối đa 5 yêu cầu / 15 phút theo địa chỉ IP
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            var rateKey = $"rfq_rate_{ip}";
-            var count = _cache.Get<int>(rateKey);
-            if (count >= 5)
+            //    (chỉ KIỂM TRA ở đây; số lần chỉ được cộng khi yêu cầu gửi thành công - xem RegisterSubmission)
+            if (_cache.Get<int>(RateKey()) >= 5)
             {
                 errorMessage = "Bạn đã gửi quá nhiều yêu cầu trong thời gian ngắn. Vui lòng thử lại sau.";
                 return true;
             }
 
-            _cache.Set(rateKey, count + 1, TimeSpan.FromMinutes(15));
             return false;
         }
+
+        private string RateKey() =>
+            $"rfq_rate_{HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
+
+        // Ghi nhận 1 lượt gửi thành công cho IP hiện tại (cửa sổ 15 phút)
+        private void RegisterSubmission()
+        {
+            var key = RateKey();
+            _cache.Set(key, _cache.Get<int>(key) + 1, TimeSpan.FromMinutes(15));
+        }
+
+        // Kiểm tra & làm sạch dữ liệu khách nhập: độ dài, định dạng email, mã sản phẩm có thật
+        private async Task ValidateRequestFieldsAsync(CustomerRequest m)
+        {
+            m.CustomerName = (m.CustomerName ?? string.Empty).Trim();
+            m.Email = (m.Email ?? string.Empty).Trim();
+            m.CompanyName = NullIfBlank(m.CompanyName);
+            m.Country = NullIfBlank(m.Country);
+            m.Phone = NullIfBlank(m.Phone);
+            m.ProductCode = NullIfBlank(m.ProductCode);
+            m.Quantity = NullIfBlank(m.Quantity);
+            m.ShippingAddress = NullIfBlank(m.ShippingAddress);
+            m.Message = NullIfBlank(m.Message);
+
+            void CheckMax(string? value, int max, string field, string label)
+            {
+                if (value != null && value.Length > max)
+                {
+                    ModelState.AddModelError(field, $"{label} quá dài (tối đa {max} ký tự).");
+                }
+            }
+
+            CheckMax(m.CustomerName, 150, nameof(m.CustomerName), "Họ tên");
+            CheckMax(m.Email, 200, nameof(m.Email), "Email");
+            CheckMax(m.CompanyName, 200, nameof(m.CompanyName), "Tên công ty");
+            CheckMax(m.Country, 100, nameof(m.Country), "Quốc gia");
+            CheckMax(m.Phone, 40, nameof(m.Phone), "Số điện thoại");
+            CheckMax(m.ProductCode, 50, nameof(m.ProductCode), "Mã sản phẩm");
+            CheckMax(m.Quantity, 100, nameof(m.Quantity), "Số lượng");
+            CheckMax(m.ShippingAddress, 500, nameof(m.ShippingAddress), "Địa chỉ giao hàng");
+            CheckMax(m.Message, 4000, nameof(m.Message), "Nội dung");
+
+            if (m.CustomerName.Length == 0)
+            {
+                ModelState.AddModelError(nameof(m.CustomerName), "Vui lòng nhập họ tên.");
+            }
+
+            if (m.Email.Length == 0 || !System.Net.Mail.MailAddress.TryCreate(m.Email, out var mail) || mail.Address != m.Email)
+            {
+                ModelState.AddModelError(nameof(m.Email), "Email không hợp lệ.");
+            }
+
+            if (m.Phone != null && !m.Phone.All(c => char.IsDigit(c) || "+-() .".Contains(c)))
+            {
+                ModelState.AddModelError(nameof(m.Phone), "Số điện thoại chỉ gồm chữ số và các ký tự + - ( ) .");
+            }
+
+            if (m.ProductCode != null &&
+                m.ProductCode.Length <= 50 &&
+                !await _context.Products.AnyAsync(p => p.Code == m.ProductCode))
+            {
+                ModelState.AddModelError(nameof(m.ProductCode), "Mã sản phẩm không tồn tại.");
+            }
+        }
+
+        private static string? NullIfBlank(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
         // GET: Hiển thị form yêu cầu báo giá theo Code
         [HttpGet]
@@ -183,7 +247,11 @@ namespace SupertexWeb.Controllers
         // POST: Nhận dữ liệu báo giá
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestQuote(CustomerRequest model, string? WebsiteTrap, long? FormRenderedAt)
+        public async Task<IActionResult> RequestQuote(
+            // Chỉ nhận đúng các trường khách được phép nhập; Id, IsProcessed, CreatedAt, RequestType do server quyết định
+            [Bind("CustomerName,Email,CompanyName,Country,Phone,ProductCode,Quantity,ShippingAddress,Message")]
+            CustomerRequest model,
+            string? WebsiteTrap, long? FormRenderedAt)
         {
             if (IsSpamSubmission(WebsiteTrap, FormRenderedAt, out var spamError))
             {
@@ -191,6 +259,8 @@ namespace SupertexWeb.Controllers
                 await PrepareRequestFormViewBagAsync(model.ProductCode);
                 return View(model);
             }
+
+            await ValidateRequestFieldsAsync(model);
 
             if (!ModelState.IsValid)
             {
@@ -202,6 +272,7 @@ namespace SupertexWeb.Controllers
             model.CreatedAt = DateTime.Now;
             _context.CustomerRequests.Add(model);
             await _context.SaveChangesAsync();
+            RegisterSubmission();
 
             TempData["ShowSuccessModal"] = "True";
             TempData["SuccessTitle"] = "Gửi Yêu Cầu Báo Giá Thành Công!";
@@ -221,7 +292,10 @@ namespace SupertexWeb.Controllers
         // POST: Nhận dữ liệu đăng ký nhận mẫu thử
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RequestSample(CustomerRequest model, string? WebsiteTrap, long? FormRenderedAt)
+        public async Task<IActionResult> RequestSample(
+            [Bind("CustomerName,Email,CompanyName,Country,Phone,ProductCode,Quantity,ShippingAddress,Message")]
+            CustomerRequest model,
+            string? WebsiteTrap, long? FormRenderedAt)
         {
             if (IsSpamSubmission(WebsiteTrap, FormRenderedAt, out var spamError))
             {
@@ -229,6 +303,8 @@ namespace SupertexWeb.Controllers
                 await PrepareRequestFormViewBagAsync(model.ProductCode);
                 return View(model);
             }
+
+            await ValidateRequestFieldsAsync(model);
 
             if (!ModelState.IsValid)
             {
@@ -240,6 +316,7 @@ namespace SupertexWeb.Controllers
             model.CreatedAt = DateTime.Now;
             _context.CustomerRequests.Add(model);
             await _context.SaveChangesAsync();
+            RegisterSubmission();
 
             TempData["ShowSuccessModal"] = "True";
             TempData["SuccessTitle"] = "Đăng Ký Nhận Mẫu Thử Thành Công!";

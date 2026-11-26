@@ -39,7 +39,7 @@
             <div class="col-lg-7">
                 <h3 class="fw-bold text-dark mb-4">Tổng quan về hệ thống sản xuất Supertex</h3>
                 <div class="text-secondary lh-lg mb-4" style="text-align: justify;">
-                    @Html.Raw(Model.MainContent?.Replace("\n", "<br />"))
+                    @Html.Raw(SupertexWeb.Services.RichTextSanitizer.Sanitize(Model.MainContent)?.Replace("\n", "<br />"))
                 </div>
 
                 <div class="p-4 bg-light rounded-4 border-start border-4 border-primary shadow-sm">
