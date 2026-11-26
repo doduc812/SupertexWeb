@@ -1,0 +1,147 @@
+﻿@model SupertexWeb.Models.Product
+
+@{
+    ViewData["Title"] = "Chi tiết & Chỉnh sửa sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <!-- Thanh tiêu đề và điều hướng -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Chi tiết sản phẩm: <span class="text-primary">@Model.Code</span>
+                </h2>
+                <p class="text-muted small mb-0">Xem toàn bộ thông tin chi tiết và cập nhật chỉnh sửa mẫu tất.</p>
+            </div>
+            <a href="/Admin/Products" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại lưới sản phẩm
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Code" />
+                    <input type="hidden" asp-for="ImageUrl" />
+                    <input type="hidden" asp-for="CreatedDate" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row g-4">
+                        <!-- Cột bên trái: Hiển thị hình ảnh hiện tại và cho phép chọn ảnh mới -->
+                        <div class="col-md-4 text-center border-end">
+                            <label class="form-label fw-semibold d-block mb-3">Hình ảnh sản phẩm</label>
+
+                            <div class="mb-3 position-relative d-inline-block">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img id="imgPreview" src="@Model.ImageUrl" alt="@Model.Name" class="rounded border shadow-sm w-100" style="max-height: 220px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <img id="imgPreview" src="#" alt="Chưa có ảnh" class="rounded border d-none shadow-sm w-100" style="max-height: 220px; object-fit: cover;" />
+                                    <div id="noImagePlaceholder" class="bg-light rounded border d-flex flex-column align-items-center justify-content-center text-muted p-5">
+                                        <i class="fa-solid fa-image fs-1 mb-2"></i>
+                                        <span class="small">Chưa có ảnh</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="mb-3 text-start">
+                                <label class="form-label small fw-semibold text-muted">Thay đổi hình ảnh mới:</label>
+                                <input type="file" name="imageFile" class="form-control form-control-sm" accept="image/*" onchange="previewNewImage(event)" />
+                                <div class="form-text small text-muted">Hệ thống sẽ giữ nguyên ảnh cũ nếu không chọn ảnh mới.</div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 text-start small">
+                                <div class="text-muted mb-1"><strong>Mã SKU cố định:</strong> <span class="text-danger fw-bold">@Model.Code</span></div>
+                                <div class="text-muted"><strong>Ngày tạo:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                        </div>
+
+                        <!-- Cột bên phải: Form chỉnh sửa các thông số -->
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label fw-semibold"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Category" class="form-label fw-semibold"></label>
+                                    <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<SupertexWeb.Models.SockCategory>()"></select>
+                                    <span asp-validation-for="Category" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Color" class="form-label fw-semibold"></label>
+                                    <input asp-for="Color" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Material" class="form-label fw-semibold"></label>
+                                    <input asp-for="Material" class="form-control" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Size" class="form-label fw-semibold"></label>
+                                    <input asp-for="Size" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label fw-semibold"></label>
+                                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                                        <label class="form-check-label fw-semibold" asp-for="IsActive">Hiển thị sản phẩm</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" asp-for="IsFeatured">
+                                        <label class="form-check-label fw-semibold" asp-for="IsFeatured">Đánh dấu sản phẩm nổi bật</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="/Admin/Products" class="btn btn-outline-secondary px-4">Hủy bỏ</a>
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewNewImage(event) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('imgPreview');
+                output.src = reader.result;
+                output.classList.remove('d-none');
+
+                var placeholder = document.getElementById('noImagePlaceholder');
+                if (placeholder) {
+                    placeholder.classList.add('d-none');
+                }
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+}

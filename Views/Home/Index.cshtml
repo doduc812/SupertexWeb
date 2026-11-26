@@ -1,0 +1,549 @@
+﻿@model IEnumerable<SupertexWeb.Models.Product>
+
+@{
+    ViewData["Title"] = "Supertex - Modern Sock Manufacturing & Global Export";
+}
+
+<!-- Liên kết file CSS riêng biệt để quản lý gọn gàng -->
+<link rel="stylesheet" href="~/css/index-style.css" />
+
+<!-- 1. STICKY TOP BRANDING BAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm border-bottom py-2">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-dark d-flex align-items-center gap-2 py-0" href="#">
+            <img src="~/images/partners/supertex-logo.svg" alt="Supertex Logo" width="38" class="img-fluid" />
+            <span class="fs-5">SUPERTEX <span class="text-primary fs-6 fw-normal">Socks & Textile</span></span>
+        </a>
+        <div class="d-none d-md-flex align-items-center gap-4">
+            <a href="#partners" class="text-decoration-none text-secondary small fw-medium nav-link-custom">Đối tác</a>
+            <a href="#products-grid" class="text-decoration-none text-secondary small fw-medium nav-link-custom">Sản phẩm</a>
+            <a href="#about-us" class="text-decoration-none text-secondary small fw-medium nav-link-custom">Giới thiệu</a>
+            <a href="#company-news" class="text-decoration-none text-secondary small fw-medium nav-link-custom">Hoạt động</a>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-muted small d-none d-sm-inline">OEM/ODM Global Supplier</span>
+            <a href="#contact" class="btn btn-dark btn-sm px-3 rounded-pill">Liên hệ hợp tác</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 2. HERO SECTION -->
+<section class="py-4 py-lg-5 hero-section-light position-relative overflow-hidden border-bottom">
+    <div class="container">
+        <div class="row align-items-center justify-content-between g-4 g-lg-5">
+            <div class="col-lg-5">
+                <div class="mb-2">
+                    <span class="badge hero-badge-custom px-3 py-3 rounded-pill extra-small">
+                        ✨ ISO 9001:2015 & OEKO-TEX Standard
+                    </span>
+                </div>
+                <h1 class="hero-title h2 mb-3 lh-sm">
+                    Sản xuất tất OEM/ODM cho <span class="text-primary">thị trường quốc tế</span>
+                </h1>
+                <p class="text-secondary mb-4 small lh-base">
+                    Supertex chuyên gia công và sản xuất tất theo yêu cầu khắt khe cho các đối tác tại Nhật Bản, Mỹ và Châu Âu. Kiểm soát toàn diện từ nguồn sợi đến thành phẩm.
+                </p>
+                <div class="d-flex flex-wrap gap-2 gap-md-3 mb-4">
+                    <a href="#products-grid" class="btn btn-primary px-4 py-2.5 rounded-3 shadow-sm fw-semibold d-inline-flex align-items-center gap-2">
+                        Xem danh mục sản phẩm &rarr;
+                    </a>
+                    <a href="/Home/RequestQuote" class="btn btn-outline-dark px-4 py-2.5 rounded-3 fw-semibold">
+                        Gửi yêu cầu báo giá
+                    </a>
+                </div>
+                <div class="row g-3 pt-3 border-top border-secondary-subtle">
+                    <div class="col-auto me-3">
+                        <div class="fs-4 fw-bold text-dark">100M+</div>
+                        <div class="text-muted extra-small">Sản phẩm / năm</div>
+                    </div>
+                    <div class="col-auto me-3">
+                        <div class="fs-4 fw-bold text-dark">100%</div>
+                        <div class="text-muted extra-small">Sợi chuẩn quốc tế</div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="fs-4 fw-bold text-dark">US & JP & EU</div>
+                        <div class="text-muted extra-small">Thị trường xuất khẩu</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="hero-static-img-container">
+                    <img src="~/images/partners/home_background.png" class="hero-static-img d-block" alt="Dây chuyền dệt tất tiêu chuẩn quốc tế tại Supertex" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1200&auto=format&fit=crop';">
+                </div>
+                <div class="text-muted extra-small mt-2 ps-1 fst-italic">
+                    | Không gian nhà máy và dây chuyền dệt tất tiêu chuẩn quốc tế tại Supertex
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. TRUST & PARTNERS SECTION -->
+<section class="py-4 bg-light border-top border-bottom" id="partners">
+    <div class="container">
+        <div class="text-center mb-4">
+            <span class="text-uppercase text-primary fw-bold extra-small tracking-wider">Trusted Global Network</span>
+            <h4 class="fw-bold text-dark mb-1">Đối Tác & Thương Hiệu Quốc Tế Tin Cậy</h4>
+            <p class="text-muted extra-small m-0">Supertex tự hào đồng hành và gia công OEM/ODM cho các tập đoàn hàng đầu</p>
+        </div>
+        <div class="row g-3 align-items-center justify-content-center">
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <img src="/images/partners/walmart-logo.svg" alt="Walmart Logo" class="img-fluid partner-logo" />
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <img src="/images/partners/aeon-logo.svg" alt="AEON Logo" class="img-fluid partner-logo" />
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <img src="/images/partners/the-north-face-logo.svg" alt="The North Face Logo" class="img-fluid partner-logo" />
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <img src="/images/partners/new-era-logo.svg" alt="New Era Logo" class="img-fluid partner-logo" />
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <span class="fw-bold text-dark fs-5 tracking-tight">WORKMAN</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <span class="fw-bold text-danger fs-5 tracking-wide">EDWIN®</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <span class="fw-bold text-primary fs-5">GUNZE</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <img src="/images/partners/gerber-logo-baby.png" alt="Gerber Logo" class="img-fluid partner-logo" />
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <span class="fw-bold text-danger small">miki HOUSE</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-3 col-lg-2">
+                <div class="bg-white border rounded-4 p-3 text-center partner-img-box shadow-sm d-flex align-items-center justify-content-center">
+                    <span class="fw-bold text-dark fs-5 border border-2 border-dark px-2">ZETT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. CATEGORY FILTER & PRODUCT SLIDER GRID -->
+<section class="py-5 bg-white position-relative" id="products-grid">
+    <div class="container">
+        <!-- Tiêu đề và bộ lọc 5 danh mục tất -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark m-0">Bộ Sưu Tập Sản Phẩm</h3>
+                <p class="text-muted small m-0">Phân loại theo tiêu chuẩn sản xuất chuyên biệt</p>
+            </div>
+            <!-- Dãy nút lọc chuyển hướng sang trang danh mục riêng -->
+            <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0" id="categoryFilterGroup">
+                <a href="/" class="btn btn-dark rounded-pill px-3 py-1.5 btn-sm fw-medium shadow-sm text-decoration-none">
+                    Sản phẩm nổi bật
+                </a>
+                <a href="/Home/Category/ChildrenSocks" class="btn btn-white border rounded-pill px-3 py-1.5 btn-sm fw-medium text-secondary text-decoration-none d-flex align-items-center">
+                    <img src="~/images/catogery/pair-children.svg" alt="" width="18" height="18" class="me-1"> ChildrenSocks
+                </a>
+                <a href="/Home/Category/SportSocks" class="btn btn-white border rounded-pill px-3 py-1.5 btn-sm fw-medium text-secondary text-decoration-none d-flex align-items-center">
+                    <img src="~/images/catogery/pair-sport.svg" alt="" width="18" height="18" class="me-1"> SportSocks
+                </a>
+                <a href="/Home/Category/NormalSocks" class="btn btn-white border rounded-pill px-3 py-1.5 btn-sm fw-medium text-secondary text-decoration-none d-flex align-items-center">
+                    <img src="~/images/catogery/pair-adult.svg" alt="" width="18" height="18" class="me-1"> NormalSocks
+                </a>
+                <a href="/Home/Category/FingerSocks" class="btn btn-white border rounded-pill px-3 py-1.5 btn-sm fw-medium text-secondary text-decoration-none d-flex align-items-center">
+                    <img src="~/images/catogery/pair-finger.svg" alt="" width="18" height="18" class="me-1"> FingerSocks
+                </a>
+                <a href="/Home/Category/OtherSpecialSocks" class="btn btn-white border rounded-pill px-3 py-1.5 btn-sm fw-medium text-secondary text-decoration-none d-flex align-items-center">
+                    <img src="~/images/catogery/pair-other.svg" alt="" width="18" height="18" class="me-1"> OtherSpecialSocks
+                </a>
+            </div>
+        </div>
+
+        <!-- PRODUCT SLIDER CONTAINER -->
+        <div class="product-slider-container position-relative px-md-4">
+            <button id="prevBtn" class="slider-arrow slider-arrow-left shadow-sm">&#10094;</button>
+
+            <div class="product-slider-wrapper position-relative overflow-hidden py-2">
+                <div id="productTrack" class="product-track d-flex">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <div class="product-slide-item px-2 original-item" data-category="@item.Category">
+                                <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden modern-product-card">
+
+                                    <!-- Hiển thị hình ảnh thật từ Database & Bấm vào mở chi tiết -->
+                                    <a href="/Home/Details/@item.Id">
+                                        <div class="card-img-top bg-light border-bottom product-img-box position-relative text-center overflow-hidden" style="aspect-ratio: 1/1;">
+                                            <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 rounded-pill px-2.5 py-1 extra-small fw-semibold z-1">
+                                                @item.Category
+                                            </span>
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl" alt="@item.Name" class="w-100 h-100 object-fit-cover" />
+                                            }
+                                            else
+                                            {
+                                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                                                    <span class="fs-1">🧦</span>
+                                                    <div class="text-muted extra-small mt-1">Mã: @item.Code</div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </a>
+
+                                    <div class="card-body d-flex flex-column p-3">
+                                        <h6 class="fw-bold text-dark mb-1 text-truncate" title="@item.Name">@item.Name</h6>
+                                        <p class="text-secondary extra-small mb-2 product-desc-clamp">
+                                            @(string.IsNullOrEmpty(item.Description) ? "Chưa có mô tả chi tiết." : item.Description)
+                                        </p>
+
+                                        <div class="bg-light p-2 rounded-3 extra-small text-muted mb-3 mt-auto">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>Chất liệu:</span>
+                                                <strong class="text-dark">@(string.IsNullOrEmpty(item.Material) ? "Standard Cotton" : item.Material)</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Mã SKU:</span>
+                                                <strong class="text-danger">@item.Code</strong>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex gap-2">
+                                            <a href="/Home/RequestQuote?code=@Uri.EscapeDataString(item.Code)" class="btn btn-primary rounded-3 py-1.5 extra-small fw-semibold btn-b2b-custom w-50 text-center">B2B Request</a>
+                                            <a href="/Home/Details/@item.Id" class="btn btn-outline-light text-dark border rounded-3 btn-sm px-2.5 py-1.5 extra-small w-50 text-center">Chi tiết</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-center py-5 text-muted">
+                            <p>Đang cập nhật danh mục sản phẩm từ hệ thống quản trị...</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Thông báo nếu danh mục lọc trống -->
+                <div id="emptyFilterMsg" class="text-center py-5 text-muted d-none">
+                    <p class="mb-0">Hiện chưa có sản phẩm nào thuộc danh mục này.</p>
+                </div>
+            </div>
+
+            <button id="nextBtn" class="slider-arrow slider-arrow-right shadow-sm">&#10095;</button>
+        </div>
+    </div>
+</section>
+
+<!-- 5. ABOUT US SECTION (Đã tối ưu khoảng cách bám sát Section 4 và hỗ trợ Ảnh/Video động từ Admin) -->
+<section class="py-4 py-lg-5 bg-light border-top border-bottom" id="about-us">
+    <div class="container">
+        @{
+            var aboutSec = ViewBag.HomeAbout as SupertexWeb.Models.HomeAboutSection;
+        }
+
+        <!-- HEADER CỦA SECTION -->
+        <div class="text-center mb-4 mb-lg-4">
+            <!-- <span class="text-uppercase text-primary fw-bold extra-small tracking-wider">@(aboutSec?.BadgeText ?? "ABOUT SUPERTEX")</span> -->
+            <h3 class="fw-bold text-dark mt-1 mb-2">Năng Lực & Quy Mô Sản Xuất</h3>
+            <p class="text-muted small m-0" style="max-width: 600px; margin: 0 auto !important;">
+                Hệ thống nhà máy hiện đại cùng quy trình kiểm soát chất lượng chuẩn quốc tế
+            </p>
+        </div>
+
+        <!-- BỘ CỤC 2 CỘT -->
+        <div class="row align-items-center justify-content-between g-4 g-lg-5">
+
+            <!-- CỘT TRÁI: Hỗ trợ hiển thị Ảnh hoặc Video động -->
+            <div class="col-lg-6">
+                @if (aboutSec != null && aboutSec.IsVideoMode && !string.IsNullOrEmpty(aboutSec.VideoUrl))
+                {
+                    <!-- Hiển thị Video nếu Admin bật chế độ Video -->
+                    <div class="ratio ratio-16x9 shadow-sm rounded-4 overflow-hidden bg-dark">
+                        <iframe src="@aboutSec.VideoUrl" title="Supertex Factory Video" allowfullscreen></iframe>
+                    </div>
+                }
+                else
+                {
+                    <!-- Hiển thị Ảnh tĩnh -->
+                    <div class="about-img-container shadow-sm">
+                        <img src="@(aboutSec?.ImageUrl ?? "/images/partners/factory-line.jpg")" class="about-factory-img" alt="Nhà máy và dây chuyền sản xuất Supertex" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=800&auto=format&fit=crop';">
+                    </div>
+                }
+                <div class="text-muted extra-small mt-2 ps-1 fst-italic">
+                    Nhà máy & Dây chuyền sản xuất Supertex — Hệ thống máy dệt tự động công nghệ cao, kiểm soát chất lượng khép kín.
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: Nội dung chữ động từ Admin -->
+            <div class="col-lg-6">
+                <div class="mb-2">
+                    <!-- <span class="text-uppercase fw-bold about-badge">
+                        @(aboutSec?.BadgeText ?? "Giới thiệu Supertex")
+                    </span> -->
+                </div>
+
+                <h2 class="fw-bold about-title h4 mb-3 lh-sm">
+                    @(aboutSec?.Title ?? "Đối tác sản xuất tất cho các thương hiệu quốc tế")
+                </h2>
+
+                <p class="text-secondary mb-4 small lh-base">
+                    @(aboutSec?.Description ?? "Được thành lập với định hướng chuyên môn hóa cao trong ngành dệt may, Supertex không ngừng đầu tư công nghệ hiện đại và nâng cao tay nghề nhân sự. Chúng tôi tự hào cung cấp các sản phẩm tất đa dạng chủng loại đáp ứng những tiêu chuẩn khắt khe nhất của đối tác trong nước và quốc tế.")
+                </p>
+
+                <!-- Hai điểm nhấn QC & Tiến độ -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-primary fw-bold">✓</span>
+                            <span class="small fw-semibold text-dark">Quy trình kiểm tra QC nghiêm ngặt</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-primary fw-bold">✓</span>
+                            <span class="small fw-semibold text-dark">Cam kết tiến độ đơn hàng OEM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <a href="/Home/About" class="btn btn-dark px-4 py-2.5 rounded-3 small fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
+                        Xem hồ sơ năng lực &rarr;
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- 6. COMPANY NEWS & ACTIVITIES SECTION (Đã fix tỷ lệ ảnh và thu hẹp khoảng cách) -->
+<section class="py-4 py-lg-5 bg-white border-top" id="company-news">
+    <div class="container">
+        <!-- Tiêu đề section (Giảm khoảng cách mb-4 thay vì mb-5) -->
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark mt-1 mb-1">Hoạt Động & Tin Tức Supertex</h3>
+            <p class="text-muted small mb-0">Cập nhật các hoạt động sản xuất, sự kiện và thông tin thị trường mới nhất</p>
+        </div>
+
+        <div class="row g-4">
+            @{
+                var posts = ViewBag.LatestPosts as List<SupertexWeb.Models.Post>;
+            }
+
+            @if (posts != null && posts.Any())
+            {
+                foreach (var post in posts)
+                {
+                    <div class="col-md-4">
+                        <div class="card border-0 rounded-4 shadow-sm h-100 overflow-hidden hover-card">
+                            <!-- Khung ảnh cố định chiều cao, chống méo hình tuyệt đối -->
+                            <div class="position-relative overflow-hidden bg-light" style="height: 200px;">
+                                @if (!string.IsNullOrEmpty(post.ImageUrl))
+                                {
+                                    <img src="@post.ImageUrl" alt="@post.Title" class="w-100 h-100 object-fit-cover" />
+                                }
+                                else
+                                {
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted small">📰 [Chưa có hình ảnh]</div>
+                                }
+                            </div>
+
+                            <div class="card-body p-4 d-flex flex-column">
+                                <span class="text-muted extra-small mb-2">
+                                    <i class="fa-regular fa-calendar-days me-1"></i> @post.PublishedDate.ToString("dd/MM/yyyy")
+                                </span>
+                                <h5 class="fw-bold text-dark h6 mb-2 text-truncate-2">@post.Title</h5>
+                                <p class="text-secondary small flex-grow-1 text-truncate-3 mb-3">
+                                    @(post.Summary ?? (post.Content?.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content))
+                                </p>
+                                <div>
+                                    <a href="/Home/PostDetail/@post.Id" class="text-primary fw-semibold small text-decoration-none">Đọc tiếp &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted small fst-italic">Chưa có bài viết tin tức nào được đăng tải.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- 7. CONTACT / FOOTER SECTION -->
+<section class="py-5 bg-light border-top" id="contact">
+    <div class="container py-3 text-center">
+        <h3 class="fw-bold mb-3">Sẵn sàng hợp tác cùng Supertex?</h3>
+        <p class="text-secondary mb-4">Liên hệ ngay với chúng tôi để nhận tư vấn mẫu thiết kế riêng và báo giá gia công OEM tốt nhất.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="mailto:contact@supertex.com.vn" class="btn btn-primary px-4 py-2.5 rounded-3 fw-semibold">Gửi Email Liên Hệ</a>
+            <a href="tel:0900000000" class="btn btn-outline-dark px-4 py-2.5 rounded-3 fw-semibold">Hotline: (+84) ...</a>
+        </div>
+    </div>
+</section>
+
+<!-- JAVASCRIPT ĐIỀU KHIỂN LỌC DANH MỤC & SLIDER TRƯỢT VÔ TẬN -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const track = document.getElementById('productTrack');
+        if (!track) return;
+
+        const originalItems = Array.from(track.querySelectorAll('.original-item'));
+        const filterBtns = document.querySelectorAll('.filter-btn');
+            const emptyFilterMsg = document.getElementById('emptyFilterMsg');
+        const nextBtn = document.getElementById('nextBtn');
+         const prevBtn = document.getElementById('prevBtn');
+
+        let totalActiveOriginal = originalItems.length;
+            let currentIndex = 0;
+        const slideInterval = 3500; // Tự động trượt sau mỗi 3.5 giây
+         let autoPlay;
+
+         // Hàm dựng lại track trượt (nhân bản items để chạy vòng lặp vô tận mượt mà)
+            function setupTrack(category) {
+            track.innerHTML = '';
+                currentIndex = 0;
+               track.style.transition = 'none';
+                  track.style.transform = 'translateX(0px)';
+
+               const filtered = originalItems.filter(item =>
+                category === 'all' || item.getAttribute('data-category') === category
+            );
+
+            totalActiveOriginal = filtered.length;
+
+            if (totalActiveOriginal === 0) {
+                emptyFilterMsg.classList.remove('d-none');
+                return;
+              } else {
+                emptyFilterMsg.classList.add('d-none');
+                }
+
+                 // Đưa các item gốc vào track
+               filtered.forEach(item => track.appendChild(item.cloneNode(true)));
+
+             // Nhân bản thêm các item để đảm bảo luôn có đủ độ dài trượt vòng lặp mượt mà
+             // Kể cả khi chỉ có 1 hoặc 2 sản phẩm trong DB vẫn trượt đẹp
+            const repeatCount = totalActiveOriginal < 4 ? 4 : 1;
+            for (let i = 0; i < repeatCount; i++) {
+                    filtered.forEach(item => {
+                    const clone = item.cloneNode(true);
+                        clone.classList.remove('original-item');
+                    track.appendChild(clone);
+                });
+                }
+        }
+
+          function updateSlidePosition() {
+            const items = track.querySelectorAll('.product-slide-item');
+            if (items.length === 0) return;
+                const itemWidth = items[0].getBoundingClientRect().width;
+            track.style.transform = `translateX(-${currentIndex * itemWidth}px)`;
+            }
+
+          function nextSlide() {
+            if (totalActiveOriginal === 0) return;
+                currentIndex++;
+            track.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
+            updateSlidePosition();
+
+                // Khi trượt hết 1 vòng danh sách gốc -> nhảy âm thầm về vị trí 0
+                if (currentIndex >= totalActiveOriginal) {
+                    setTimeout(() => {
+                        track.style.transition = "none";
+                        currentIndex = 0;
+                        updateSlidePosition();
+                    }, 600);
+                }
+            }
+
+            function prevSlide() {
+                if (totalActiveOriginal === 0) return;
+                if (currentIndex <= 0) {
+                    track.style.transition = "none";
+                    currentIndex = totalActiveOriginal;
+                    updateSlidePosition();
+                    setTimeout(() => {
+                        track.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
+                        currentIndex--;
+                        updateSlidePosition();
+                    }, 30);
+                } else {
+                    currentIndex--;
+                    track.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
+                    updateSlidePosition();
+                }
+            }
+
+            function startAutoPlay() {
+                clearInterval(autoPlay);
+                if (totalActiveOriginal > 0) {
+                    autoPlay = setInterval(nextSlide, slideInterval);
+                }
+            }
+
+            // Khởi tạo ban đầu với "Tất Cả"
+            setupTrack('all');
+            startAutoPlay();
+
+            // Xử lý bấm nút lọc danh mục
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    filterBtns.forEach(b => {
+                        b.classList.remove('btn-dark', 'text-white', 'active');
+                        b.classList.add('btn-white', 'border', 'text-secondary');
+                    });
+                    this.classList.remove('btn-white', 'border', 'text-secondary');
+                    this.classList.add('btn-dark', 'text-white', 'active');
+
+                    const selectedCategory = this.getAttribute('data-category');
+                    setupTrack(selectedCategory);
+                    startAutoPlay();
+                });
+            });
+
+            // Dừng trượt khi di chuột vào xem sản phẩm
+            track.addEventListener('mouseenter', () => clearInterval(autoPlay));
+            track.addEventListener('mouseleave', startAutoPlay);
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    clearInterval(autoPlay);
+                    nextSlide();
+                    startAutoPlay();
+                });
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    clearInterval(autoPlay);
+                    prevSlide();
+                    startAutoPlay();
+                });
+            }
+
+            window.addEventListener('resize', updateSlidePosition);
+        });
+</script>

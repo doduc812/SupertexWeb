@@ -1,0 +1,104 @@
+﻿@model IEnumerable<SupertexWeb.Models.Post>
+
+@{
+    ViewData["Title"] = "Quản lý Tin tức & Bài viết";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-newspaper text-primary me-2"></i> Quản lý Tin tức & Sự kiện</h2>
+        <p class="text-muted small mb-0">Đăng tải các bài viết, thông tin triển lãm hoặc tin tức hoạt động công ty.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <!-- Nút chuyển tới trang Upsert để thêm mới bài viết -->
+        <a href="/Admin/Upsert" class="btn btn-primary btn-sm fw-semibold shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i> Viết bài mới
+        </a>
+        <a href="/Admin/Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Về Dashboard
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase extra-small fw-bold">
+                    <tr>
+                        <th class="py-3 ps-4">Hình ảnh</th>
+                        <th class="py-3">Tiêu đề bài viết</th>
+                        <th class="py-3">Ngày đăng</th>
+                        <th class="py-3 text-center">Trạng thái</th>
+                        <th class="py-3 text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 py-3" style="width: 80px;">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="" class="rounded object-fit-cover shadow-sm" style="width: 55px; height: 45px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded text-center d-flex align-items-center justify-content-center text-muted" style="width: 55px; height: 45px; font-size: 12px;">No img</div>
+                                    }
+                                </td>
+                                <td>
+                                    <h6 class="fw-bold text-dark mb-1 text-truncate" style="max-width: 400px;">@item.Title</h6>
+                                    <p class="text-muted extra-small mb-0 text-truncate" style="max-width: 400px;">@(item.Summary ?? "Không có mô tả ngắn.")</p>
+                                </td>
+                                <td class="small text-secondary">@item.PublishedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    @if (item.IsPublished)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-2.5 py-1 rounded-pill extra-small fw-semibold">Hiển thị</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary px-2.5 py-1 rounded-pill extra-small fw-semibold">Ẩn</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <!-- Nút Sửa bài viết (Trỏ đến action Upsert kèm theo Id) -->
+                                    <a href="/Admin/Upsert/@item.Id" class="btn btn-sm btn-outline-primary rounded-3 me-1" title="Chỉnh sửa bài viết">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+
+                                    <!-- Nút Xóa bài viết -->
+                                    <form asp-action="DeletePost" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này không?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Xóa bài viết">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <p class="mb-0">Chưa có bài viết nào được đăng.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

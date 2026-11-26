@@ -1,0 +1,95 @@
+﻿@model SupertexWeb.Models.HomeAboutSection
+
+@{
+    ViewData["Title"] = "Quản lý tóm tắt năng lực trang chủ";
+    Layout = "_AdminLayout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1"><i class="fa-solid id-card text-primary me-2"></i> Quản lý Tóm tắt Năng lực (Trang chủ)</h2>
+                <p class="text-muted small mb-0">Tùy chỉnh tiêu đề, bài viết ngắn và cấu hình hiển thị Hình ảnh hoặc Video nhà máy ở Mục 5 trang chủ.</p>
+            </div>
+            <a href="/Admin/Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Về Dashboard
+            </a>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <form asp-action="HomeAbout" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ImageUrl" />
+
+                    <div class="mb-3">
+                        <label asp-for="BadgeText" class="form-label fw-semibold"></label>
+                        <input asp-for="BadgeText" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold"></label>
+                        <input asp-for="Title" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="fw-bold text-dark mb-3 fs-6">Cấu hình hiển thị Hình ảnh hoặc Video</h5>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" asp-for="IsVideoMode" class="form-check-input" id="isVideoCheck" />
+                        <label class="form-check-label fw-semibold text-primary" for="isVideoCheck">
+                            Bật chế độ hiển thị Video thay vì Ảnh tĩnh bên cột trái trang chủ
+                        </label>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-5 text-center border-end">
+                            <label class="form-label fw-semibold d-block text-start">Ảnh hiện tại</label>
+                            <div class="bg-light border rounded p-2 mb-2" style="max-height: 140px; overflow: hidden;">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl" alt="Home About Image" class="w-100 rounded object-fit-cover" style="height: 120px;" />
+                                }
+                                else
+                                {
+                                    <div class="text-muted py-3">Chưa có ảnh</div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label fw-semibold">Tải lên ảnh mới (Nếu dùng ảnh tĩnh)</label>
+                            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="VideoUrl" class="form-label fw-semibold"></label>
+                        <input asp-for="VideoUrl" class="form-control" placeholder="Ví dụ: https://www.youtube.com/embed/xxxx hoặc /videos/factory.mp4" />
+                        <div class="form-text small text-muted">Nếu chọn dùng Video, hãy nhập đường dẫn nhúng YouTube Embed hoặc link file video trong thư mục wwwroot.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary py-2.5 fw-semibold shadow-sm">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Lưu cấu hình tóm tắt trang chủ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

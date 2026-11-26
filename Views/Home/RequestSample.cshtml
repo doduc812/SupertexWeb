@@ -1,0 +1,132 @@
+﻿@model SupertexWeb.Models.CustomerRequest
+
+@{
+    ViewData["Title"] = "Đăng Ký Nhận Mẫu Thử - Supertex";
+    var products = ViewBag.ProductList as List<SupertexWeb.Models.Product>;
+    var prefilledCode = ViewBag.SelectedCode as string;
+    var prefilledProduct = ViewBag.SelectedProduct as string;
+}
+@Html.AntiForgeryToken()
+
+<!-- Honeypot: ẩn hoàn toàn với người dùng thật, bot tự điền sẽ bị chặn -->
+<div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+    <label for="WebsiteTrap">Website</label>
+    <input type="text" id="WebsiteTrap" name="WebsiteTrap" tabindex="-1" autocomplete="off" />
+</div>
+
+<!-- Lưu thời điểm mở form (giây) để chặn bot gửi quá nhanh (< 2s) -->
+<input type="hidden" name="FormRenderedAt" value="@DateTimeOffset.UtcNow.ToUnixTimeSeconds()" />
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-success">Đăng Ký Nhận Mẫu Thử (Sample Request)</h2>
+                    <p class="text-muted">Nhận bưu phẩm mẫu tất chất lượng cao trực tiếp từ nhà máy sản xuất Supertex.</p>
+                </div>
+
+                <form asp-action="RequestSample" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- LOGIC HIỂN THỊ SẢN PHẨM MẪU -->
+                    @if (!string.IsNullOrEmpty(prefilledCode))
+                    {
+                        <!-- Trường hợp 1: Khách bấm từ 1 sản phẩm cụ thể -> Ghim sẵn mã mẫu, không cần chọn -->
+                        <input type="hidden" name="ProductCode" value="@prefilledCode" />
+                        <div class="mb-4 p-3 bg-light rounded-3 border d-flex align-items-center">
+                            <div class="me-3 text-success fs-4"><i class="fa-solid fa-box-open"></i></div>
+                            <div>
+                                <span class="small text-muted d-block">Sản phẩm mẫu khách đang quan tâm:</span>
+                                <strong class="text-dark fs-6">@prefilledProduct</strong>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Trường hợp 2: Khách vào từ nút chung -> Mới hiện danh sách để chọn mẫu -->
+                        <div class="mb-3">
+                            <label asp-for="ProductCode" class="form-label fw-semibold">Chọn sản phẩm muốn nhận mẫu</label>
+                            <select asp-for="ProductCode" class="form-select">
+                                <option value="">-- Chọn sản phẩm mẫu --</option>
+                                @if (products != null)
+                                {
+                                    foreach (var prod in products)
+                                    {
+                                        <option value="@prod.Code">@prod.Name (Mã: @prod.Code - @prod.Category)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CustomerName" class="form-label fw-semibold">Họ và tên người nhận <span class="text-danger">*</span></label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ tên của bạn..." required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold">Email liên hệ <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="name@company.com" required />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CompanyName" class="form-label fw-semibold">Tên Công ty / Doanh nghiệp</label>
+                            <input asp-for="CompanyName" class="form-control" placeholder="Tên công ty..." />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Country" class="form-label fw-semibold">Quốc gia nhận mẫu</label>
+                            <input asp-for="Country" class="form-control" placeholder="Ví dụ: Vietnam, USA..." />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label fw-semibold">Số điện thoại / WhatsApp</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+84..." />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Quantity" class="form-label fw-semibold">Quy cách / Size mẫu cần nhận</label>
+                            <input asp-for="Quantity" class="form-control" placeholder="Ví dụ: Size L, màu trắng..." />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShippingAddress" class="form-label fw-semibold">Địa chỉ nhận bưu phẩm mẫu chính xác <span class="text-danger">*</span></label>
+                        <input asp-for="ShippingAddress" class="form-control" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành phố..." required />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Message" class="form-label fw-semibold">Ghi chú thêm cho bộ phận đóng gói</label>
+                        <textarea asp-for="Message" rows="4" class="form-control" placeholder="Yêu cầu cụ thể về loại sợi hoặc mác nhãn đi kèm..."></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm">Gửi Yêu Cầu Nhận Mẫu Ngay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thông Báo Thành Công -->
+@if (TempData["ShowSuccessModal"]?.ToString() == "True")
+{
+    <div class="modal fade show" id="successModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4">
+                <div class="modal-body">
+                    <div class="mb-3 text-success">
+                        <i class="bi bi-check-circle-fill display-3"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-2">@TempData["SuccessTitle"]</h3>
+                    <p class="text-muted mb-4">@TempData["SuccessMessage"]</p>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-success px-5 rounded-pill fw-bold">Về Trang Chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

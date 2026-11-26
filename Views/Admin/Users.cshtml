@@ -1,0 +1,261 @@
+﻿@model IEnumerable<SupertexWeb.Models.AdminUser>
+@{
+    ViewData["Title"] = "Quản lý Tài khoản Admin & Phân quyền";
+    bool isCurrentSuperAdmin = ViewBag.IsCurrentSuperAdmin == true;
+}
+
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-1">Quản lý Tài khoản Admin & Phân quyền</h4>
+            <p class="text-muted small mb-0">Bật/tắt nút gạt quyền theo từng mảng: Full, Sản phẩm, Bài viết, Khách hàng.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            &larr; Về Tổng quan
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show py-2 small" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- FORM THÊM ADMIN MỚI -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white fw-semibold py-2">
+            + Thêm tài khoản quản trị mới
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateAdmin" method="post" class="row g-3 align-items-end">
+                @Html.AntiForgeryToken()
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Email / Tên đăng nhập</label>
+                    <input type="text" name="username" class="form-control form-control-sm" placeholder="nhanvien@supertex.com.vn" required />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Họ tên / Bộ phận</label>
+                    <input type="text" name="fullName" class="form-control form-control-sm" placeholder="VD: Lan - Đăng bài" required />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Mật khẩu khởi tạo</label>
+                    <input type="password" name="password" class="form-control form-control-sm" placeholder="Nhập mật khẩu" required />
+                </div>
+
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+                        Thêm tài khoản
+                    </button>
+                </div>
+
+                <div class="col-12 pt-1">
+                    <div class="d-flex flex-wrap gap-4 align-items-center">
+                        @if (isCurrentSuperAdmin)
+                        {
+                            <div class="form-check form-switch">
+                                <input class="form-check-input js-full-switch" type="checkbox" name="canFullAccess" value="true" id="new_full" />
+                                <label class="form-check-label small fw-semibold" for="new_full">Full</label>
+                            </div>
+                        }
+                        <div class="form-check form-switch">
+                            <input class="form-check-input js-sub-switch" type="checkbox" name="canManageProducts" value="true" id="new_prod" />
+                            <label class="form-check-label small" for="new_prod">Sản phẩm</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input js-sub-switch" type="checkbox" name="canManagePosts" value="true" id="new_post" />
+                            <label class="form-check-label small" for="new_post">Bài viết</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input js-sub-switch" type="checkbox" name="canManageCustomers" value="true" id="new_cust" />
+                            <label class="form-check-label small" for="new_cust">Khách hàng</label>
+                        </div>
+                        <div class="form-check form-switch ms-auto">
+                            <input class="form-check-input" type="checkbox" name="isActive" value="true" id="new_active" checked />
+                            <label class="form-check-label small" for="new_active">Kích hoạt</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BẢNG DANH SÁCH ADMIN (MỖI ADMIN 1 HÀNG) -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-secondary">
+                        <tr>
+                            <th style="min-width: 210px;">Tài khoản / Họ tên</th>
+                            <th style="min-width: 150px;">Đổi mật khẩu (tuỳ chọn)</th>
+                            <th class="text-center">Full</th>
+                            <th class="text-center">Sản phẩm</th>
+                            <th class="text-center">Bài viết</th>
+                            <th class="text-center">Khách hàng</th>
+                            <th class="text-center">Hoạt động</th>
+                            <th class="text-end" style="min-width: 145px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            string formId = $"form_admin_{user.Id}";
+                            bool isLockedRow = user.IsSuperAdmin;
+                            bool canToggleFullInRow = isCurrentSuperAdmin && !user.IsSuperAdmin;
+                            bool rowHasFull = user.IsSuperAdmin || user.CanFullAccess;
+
+                            <tr class="@(user.IsSuperAdmin ? "table-warning bg-opacity-25" : "")">
+                                <td>
+                                    <form id="@formId" asp-action="UpdateAdmin" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                    </form>
+                                    <div class="fw-semibold small">@user.Username</div>
+                                    @if (user.IsSuperAdmin)
+                                    {
+                                        <span class="badge bg-danger mb-1">SuperAdmin cao nhất</span>
+                                    }
+                                    <input type="text"
+                                           form="@formId"
+                                           name="fullName"
+                                           value="@user.FullName"
+                                           class="form-control form-control-sm mt-1"
+                                    @(isLockedRow ? "readonly" : "") />
+                                </td>
+
+                                <td>
+                                    @if (isLockedRow)
+                                    {
+                                        <span class="text-muted small">Bảo vệ mặc định</span>
+                                    }
+                                    else
+                                    {
+                                        <input type="password"
+                                               form="@formId"
+                                               name="newPassword"
+                                               class="form-control form-control-sm"
+                                               placeholder="Để trống nếu giữ nguyên" />
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input js-full-switch"
+                                               type="checkbox"
+                                               form="@formId"
+                                               name="canFullAccess"
+                                               value="true"
+                                               checked="@rowHasFull"
+                                        @(canToggleFullInRow ? "" : "disabled") />
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input js-sub-switch"
+                                               type="checkbox"
+                                               form="@formId"
+                                               name="canManageProducts"
+                                               value="true"
+                                               checked="@(rowHasFull || user.CanManageProducts)"
+                                        @((isLockedRow || rowHasFull) ? "disabled" : "") />
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input js-sub-switch"
+                                               type="checkbox"
+                                               form="@formId"
+                                               name="canManagePosts"
+                                               value="true"
+                                               checked="@(rowHasFull || user.CanManagePosts)"
+                                        @((isLockedRow || rowHasFull) ? "disabled" : "") />
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input js-sub-switch"
+                                               type="checkbox"
+                                               form="@formId"
+                                               name="canManageCustomers"
+                                               value="true"
+                                               checked="@(rowHasFull || user.CanManageCustomers)"
+                                        @((isLockedRow || rowHasFull) ? "disabled" : "") />
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               form="@formId"
+                                               name="isActive"
+                                               value="true"
+                                               checked="@user.IsActive"
+                                        @(isLockedRow ? "disabled" : "") />
+                                    </div>
+                                </td>
+
+                                <td class="text-end">
+                                    @if (isLockedRow)
+                                    {
+                                        <span class="text-muted small fst-italic">Không thể sửa/xóa</span>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" form="@formId" class="btn btn-success btn-sm">
+                                            Lưu
+                                        </button>
+
+                                        <form asp-action="DeleteAdmin" method="post" class="d-inline"
+                                              onsubmit="return confirm('Xóa tài khoản [@user.Username]?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                Xóa
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("change", function (e) {
+        if (!e.target.classList.contains("js-full-switch")) return;
+
+        const fullChecked = e.target.checked;
+        const container = e.target.closest("tr") || e.target.closest("form");
+        if (!container) return;
+
+        const subSwitches = container.querySelectorAll(".js-sub-switch");
+        subSwitches.forEach(cb => {
+            if (fullChecked) {
+                cb.checked = true;
+                cb.disabled = true;
+            } else {
+                cb.disabled = false;
+            }
+        });
+    });
+</script>

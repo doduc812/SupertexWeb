@@ -1,0 +1,84 @@
+﻿@model SupertexWeb.Models.Post
+
+@{
+    ViewData["Title"] = Model.Title + " - Supertex News";
+}
+
+<link rel="stylesheet" href="~/css/index-style.css" />
+
+<!-- 1. NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm border-bottom py-2">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-dark d-flex align-items-center gap-2 py-0" href="/">
+            <img src="~/images/partners/supertex-logo.svg" alt="Supertex Logo" width="38" class="img-fluid" />
+            <span class="fs-5">SUPERTEX <span class="text-primary fs-6 fw-normal">Socks & Textile</span></span>
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">&larr; Về trang chủ</a>
+            <a href="/#contact" class="btn btn-dark btn-sm px-3 rounded-pill">Liên hệ hợp tác</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 2. NỘI DUNG CHI TIẾT BÀI VIẾT -->
+<section class="py-5 bg-white">
+    <div class="container" style="max-width: 820px;">
+
+        <!-- Tiêu đề & Ngày đăng -->
+        <div class="mb-4 text-center">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-3 py-2 rounded-pill mb-3 fw-bold text-uppercase" style="font-size: 0.82rem; letter-spacing: 0.6px;">
+                <i class="fa-regular fa-newspaper me-1"></i> Tin tức &amp; Sự kiện
+            </span>
+
+            <h1 class="fw-bold text-dark mb-3 post-detail-title"
+                style="font-size: clamp(1.3rem, 1.7vw, 1.6rem) !important; line-height: 1.4 !important; max-width: 720px; margin-left: auto; margin-right: auto; text-wrap: balance;">
+                @Model.Title
+            </h1>
+
+            <div class="text-muted small d-flex align-items-center justify-content-center gap-3">
+                <span><i class="fa-regular fa-calendar-days me-1 text-primary"></i> Ngày đăng: @Model.PublishedDate.ToString("dd/MM/yyyy HH:mm")</span>
+                <span>•</span>
+                <span><i class="fa-solid fa-building me-1 text-primary"></i> Supertex Editorial</span>
+            </div>
+        </div>
+
+        <!-- Ảnh đại diện bài viết -->
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <div class="mb-4 text-center">
+                <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid rounded-4 shadow-sm w-100 object-fit-cover" style="max-height: 460px;" />
+            </div>
+        }
+
+        <!-- Đoạn tóm tắt (Sapo) ấn tượng -->
+        @if (!string.IsNullOrEmpty(Model.Summary))
+        {
+            <div class="post-sapo-box mb-4">
+                <div class="text-uppercase text-primary fw-bold mb-1" style="font-size: 0.72rem; letter-spacing: 0.8px;">
+                    Tóm tắt nội dung
+                </div>
+                <p class="fw-medium text-dark mb-0 fst-italic" style="font-size: 1.05rem; line-height: 1.65;">
+                    @Model.Summary
+                </p>
+            </div>
+        }
+
+        <!-- Nội dung chi tiết bài viết -->
+        <div class="text-secondary lh-lg fs-6 post-content-body" style="text-align: justify;">
+            @Html.Raw(Model.Content?.Replace("\n", "<br />"))
+        </div>
+
+        <hr class="my-5">
+
+        <!-- Nút quay lại -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <a href="/" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại trang chủ
+            </a>
+            <div class="text-muted small">
+                Chia sẻ thông tin hợp tác: <span class="fw-semibold text-dark">sales@supertex.vn</span>
+            </div>
+        </div>
+
+    </div>
+</section>

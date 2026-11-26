@@ -1,0 +1,90 @@
+﻿@model IEnumerable<SupertexWeb.Models.Product>
+
+@{
+    var currentCat = ViewBag.CurrentCategory?.ToString() ?? "Danh mục";
+    ViewData["Title"] = $"Danh mục {currentCat} - Supertex";
+}
+
+<link rel="stylesheet" href="~/css/index-style.css" />
+
+<!-- 1. NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm border-bottom py-2">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-dark d-flex align-items-center gap-2 py-0" href="/">
+            <img src="~/images/partners/supertex-logo.svg" alt="Supertex Logo" width="38" class="img-fluid" />
+            <span class="fs-5">SUPERTEX <span class="text-primary fs-6 fw-normal">Socks & Textile</span></span>
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">&larr; Về trang chủ</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 2. HEADER TIÊU ĐỀ DANH MỤC -->
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 extra-small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-secondary">Trang chủ</a></li>
+                <li class="breadcrumb-item active fw-semibold text-dark" aria-current="page">@currentCat</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold text-dark mb-1">Bộ sưu tập: <span class="text-primary">@currentCat</span></h2>
+        <p class="text-muted small mb-0">Các mẫu tất sản xuất chuẩn quốc tế thuộc phân loại này.</p>
+    </div>
+</section>
+
+<!-- 3. LƯỚI HIỂN THỊ SẢN PHẨM TRONG DANH MỤC -->
+<section class="py-5 bg-white">
+    <div class="container">
+        @if (Model != null && Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var item in Model)
+                {
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden modern-product-card">
+                            <a href="/Home/Details/@item.Id" class="text-decoration-none text-dark">
+                                <div class="bg-light border-bottom position-relative overflow-hidden" style="aspect-ratio: 1 / 1;">
+                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute top-0 start-0 m-2 rounded-pill px-2.5 py-1 extra-small z-1">
+                                        @item.Code
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" class="w-100 h-100 object-fit-cover" />
+                                    }
+                                    else
+                                    {
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                            <span class="fs-1">🧦</span>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column">
+                                    <h6 class="fw-bold text-dark small text-truncate mb-1" title="@item.Name">@item.Name</h6>
+                                    <p class="text-secondary extra-small mb-2 text-truncate">
+                                        @(string.IsNullOrEmpty(item.Description) ? "Tiêu chuẩn xuất khẩu cao cấp." : item.Description)
+                                    </p>
+                                    <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center extra-small text-muted">
+                                        <span>SKU: <strong class="text-danger">@item.Code</strong></span>
+                                        <span class="text-primary fw-semibold">Xem chi tiết &rarr;</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Thông báo khi danh mục chưa có sản phẩm nào được bật hiển thị -->
+            <div class="text-center py-5">
+                <div class="fs-1 mb-3">📭</div>
+                <h5 class="fw-bold text-dark">Chưa có sản phẩm trong danh mục này</h5>
+                <p class="text-muted small mb-4">Quản trị viên chưa cập nhật hoặc chưa gạt bật hiển thị (`IsActive`) cho sản phẩm thuộc nhóm này.</p>
+                <a href="/" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">Quay lại trang chủ</a>
+            </div>
+        }
+    </div>
+</section>

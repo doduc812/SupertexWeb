@@ -1,0 +1,115 @@
+﻿@model SupertexWeb.Models.HeroSection
+
+@{
+    ViewData["Title"] = "Quản lý Banner đầu trang (Hero Section)";
+    Layout = "_AdminLayout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-image text-primary me-2"></i> Quản lý Banner đầu trang (Hero)</h2>
+                <p class="text-muted small mb-0">Tùy chỉnh tiêu đề, thông điệp và hình ảnh lớn xuất hiện ở phần đầu trang chủ khách hàng.</p>
+            </div>
+            <a href="/Admin/Index" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Về Dashboard
+            </a>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <form asp-action="Hero" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ImageUrl" />
+
+                    <div class="mb-3">
+                        <label asp-for="BadgeText" class="form-label fw-semibold"></label>
+                        <input asp-for="BadgeText" class="form-control" />
+                        <span asp-validation-for="BadgeText" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-5 text-center border-end">
+                            <label class="form-label fw-semibold d-block text-start">Hình ảnh Banner hiện tại</label>
+                            <div class="bg-light border rounded p-2 mb-2" style="max-height: 160px; overflow: hidden;">
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <img src="@Model.ImageUrl" alt="Hero Image" class="w-100 rounded object-fit-cover" style="height: 140px;" />
+                                }
+                                else
+                                {
+                                    <div class="text-muted py-4">Chưa có ảnh</div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label fw-semibold">Tải lên hình ảnh Banner mới (Khuyên dùng tỷ lệ ngang)</label>
+                            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                            <div class="form-text small text-muted mt-2">Hình ảnh hiển thị ở cột bên phải phần Hero trang chủ.</div>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-3 fs-6 border-top pt-3">Cấu hình các chỉ số năng lực (Stats)</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stat1Value" class="form-label small fw-semibold"></label>
+                            <input asp-for="Stat1Value" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stat1Label" class="form-label small fw-semibold"></label>
+                            <input asp-for="Stat1Label" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stat2Value" class="form-label small fw-semibold"></label>
+                            <input asp-for="Stat2Value" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stat2Label" class="form-label small fw-semibold"></label>
+                            <input asp-for="Stat2Label" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stat3Value" class="form-label small fw-semibold"></label>
+                            <input asp-for="Stat3Value" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Stat3Label" class="form-label small fw-semibold"></label>
+                            <input asp-for="Stat3Label" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary py-2.5 fw-semibold shadow-sm">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Lưu cấu hình Banner đầu trang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

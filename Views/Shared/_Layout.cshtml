@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SupertexWeb</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SupertexWeb.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- CHÂN TRANG (FOOTER) CHUYÊN NGHIỆP CHO WEBSITE B2B SUPERTEX -->
+    <footer class="bg-dark text-white pt-5 pb-3 border-top border-secondary">
+        <div class="container">
+            <div class="row g-4 justify-content-between mb-4">
+
+                <!-- Cột 1: Thông tin nhận diện thương hiệu -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <img src="~/images/partners/supertex-logo.svg" alt="Supertex Logo" width="38" class="bg-white rounded p-1 img-fluid" />
+                        <span class="fs-5 fw-bold text-white">SUPERTEX <span class="text-primary fs-6 fw-normal">Hosiery Manufacturing</span></span>
+                    </div>
+                    <p class="text-white-50 small lh-base mb-3">
+                        Chuyên gia công và sản xuất tất (socks) OEM/ODM chất lượng cao xuất khẩu trực tiếp sang thị trường Nhật Bản, Mỹ và Liên minh Châu Âu (EU). Đảm bảo tiêu chuẩn khắt khe từ sợi đến thành phẩm.
+                    </p>
+                    <div class="d-flex gap-3 text-secondary">
+                        <span class="badge bg-secondary bg-opacity-25 text-light px-2.5 py-1 rounded-pill extra-small">ISO 9001:2015</span>
+                        <span class="badge bg-secondary bg-opacity-25 text-light px-2.5 py-1 rounded-pill extra-small">OEKO-TEX®</span>
+                    </div>
+                </div>
+
+                <!-- Cột 2: Liên kết nhanh danh mục sản phẩm -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-uppercase fw-bold text-white mb-3 tracking-wider small">Danh Mục Sản Phẩm</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="/Home/Category/ChildrenSocks" class="text-white-50 text-decoration-none hover-white">ChildrenSocks (Tất trẻ em)</a></li>
+                        <li><a href="/Home/Category/SportSocks" class="text-white-50 text-decoration-none hover-white">SportSocks (Tất thể thao)</a></li>
+                        <li><a href="/Home/Category/NormalSocks" class="text-white-50 text-decoration-none hover-white">NormalSocks (Tất thời trang)</a></li>
+                        <li><a href="/Home/Category/FingerSocks" class="text-white-50 text-decoration-none hover-white">FingerSocks (Tất xỏ ngón)</a></li>
+                        <li><a href="/Home/Category/OtherSpecialSocks" class="text-white-50 text-decoration-none hover-white">OtherSpecial (Tất đặc biệt)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cột 3: Điều hướng trang chủ -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-uppercase fw-bold text-white mb-3 tracking-wider small">Khám Phá Supertex</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2 small">
+                        <li><a href="/#partners" class="text-white-50 text-decoration-none hover-white">Đối tác quốc tế</a></li>
+                        <li><a href="/#products-grid" class="text-decoration-none text-white-50 hover-white">Sản phẩm tiêu biểu</a></li>
+                        <li><a href="/#about-us" class="text-decoration-none text-white-50 hover-white">Năng lực nhà máy</a></li>
+                        <li><a href="/#company-news" class="text-decoration-none text-white-50 hover-white">Hoạt động & Tin tức</a></li>
+                        <li><a href="/Home/RequestQuote" class="text-decoration-none text-primary fw-semibold">Gửi yêu cầu B2B (RFQ)</a></li>
+                    </ul>
+                </div>
+
+                <!-- Cột 4: Thông tin liên hệ nhà máy -->
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="text-uppercase fw-bold text-white mb-3 tracking-wider small">Văn phòng & Nhà Máy Sản Xuất</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2.5 small text-white-50">
+                        <li><i class="fa-solid fa-location-dot text-primary me-2"></i> VP: Tầng 2, Toà V1, Văn Phú Victoria, Kiến Hưng, Hà Nội</li>
+                        <li><i class="fa-solid fa-location-dot text-primary me-2"></i> NM: Xóm Tân Tiến, xã Tân Lạc, tỉnh Phú Thọ</li>
+                        <li><i class="fa-solid fa-envelope text-primary me-2"></i> contact@supertex.com.vn</li>
+                        <li><i class="fa-solid fa-phone text-primary me-2"></i> (+84) 900 000 000 (Global Sales Department)</li>
+                        <li><i class="fa-solid fa-globe text-primary me-2"></i> Thị trường xuất khẩu: Japan, US, EU</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Dòng bản quyền phía dưới cùng -->
+            <div class="row pt-3 mt-4 border-top border-secondary text-center text-md-start align-items-center">
+                <div class="col-md-6 text-white-50 extra-small">
+                    &copy; 2026 <strong>Supertex Hosiery Manufacturing</strong>. All rights reserved. Designed for Global B2B Export.
+                </div>
+                <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                    <a href="/Home/Privacy" class="text-white-50 text-decoration-none extra-small me-3 hover-white">Chính sách bảo mật</a>
+                    <a href="/Admin" class="text-white-50 text-decoration-none extra-small hover-white"><i class="fa-solid fa-lock me-1"></i> Quản trị hệ thống</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+            .hover-white:hover {
+                color: #ffffff !important;
+                transition: color 0.2s ease;
+            }
+    </style>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

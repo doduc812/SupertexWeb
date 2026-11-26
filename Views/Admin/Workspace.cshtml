@@ -1,0 +1,168 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Không gian làm việc - Quản trị Supertex";
+    string fullName = ViewBag.FullName as string ?? "Quản trị viên";
+    bool canProducts = ViewBag.CanManageProducts == true;
+    bool canPosts = ViewBag.CanManagePosts == true;
+    bool canCustomers = ViewBag.CanManageCustomers == true;
+    bool hasAnyModule = canProducts || canPosts || canCustomers;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+    <!-- TOP HEADER ĐỒNG BỘ SUPERTEX ADMIN PANEL -->
+    <header class="navbar navbar-dark sticky-top shadow-sm px-3 px-md-4 py-2" style="background-color: #0f172a;">
+        <div class="container-fluid px-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <a asp-controller="Admin" asp-action="Workspace" class="navbar-brand d-flex align-items-center gap-2 mb-0 text-decoration-none">
+                <img src="~/images/logo.png" alt="Supertex" style="height: 30px; width: auto;" onerror="this.style.display='none'" />
+                <span class="fw-bold text-white">SUPERTEX</span>
+                <span class="badge bg-primary rounded-pill fw-semibold" style="font-size: 0.72rem;">
+                    Admin Panel
+                </span>
+            </a>
+
+            <div class="d-flex align-items-center gap-2 gap-md-3">
+                <span class="text-light small d-none d-sm-inline">
+                    Xin chào, <strong>@fullName</strong>
+                </span>
+
+                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-light btn-sm">
+                    Xem Website
+                </a>
+
+                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline m-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger btn-sm fw-semibold">
+                        Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="flex-grow-1">
+        <div class="container-fluid py-4 px-3 px-md-4">
+            <!-- HEADER CHÀO MỪNG -->
+            <div class="bg-white border rounded-3 p-3 p-md-4 mb-4">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-2">
+                    Không gian làm việc
+                </span>
+                <h4 class="fw-bold mb-1">Xin chào, @fullName</h4>
+                <p class="text-muted small mb-0">
+                    Chọn đúng phân hệ quản trị được cấp quyền để bắt đầu thao tác.
+                </p>
+            </div>
+
+            @if (!hasAnyModule)
+            {
+                <div class="bg-white border border-warning-subtle rounded-3 p-4 text-center">
+                    <div class="fw-semibold text-warning-emphasis mb-1">Tài khoản chưa được cấp quyền thao tác</div>
+                    <div class="text-muted small">Vui lòng liên hệ SuperAdmin để bật quyền cho tài khoản của bạn.</div>
+                </div>
+            }
+            else
+            {
+                <!-- LƯỚI THẺ TỰ CÂN ĐỐI THEO SỐ QUYỀN ĐƯỢC CẤP -->
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @if (canProducts)
+                    {
+                        <div class="col">
+                            <div class="card border rounded-3 h-100">
+                                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-light text-dark border">Sản phẩm</span>
+                                        </div>
+                                        <h5 class="fw-bold mb-2">Quản lý Sản phẩm</h5>
+                                        <p class="text-muted small mb-4">
+                                            Xem danh sách sản phẩm, thêm mẫu mới và cập nhật thông tin chi tiết.
+                                        </p>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                                        <a asp-action="Products" class="btn btn-primary btn-sm px-3">
+                                            Danh sách sản phẩm
+                                        </a>
+                                        <a asp-action="Create" class="btn btn-outline-primary btn-sm">
+                                            + Thêm mới
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (canPosts)
+                    {
+                        <div class="col">
+                            <div class="card border rounded-3 h-100">
+                                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-light text-dark border">Bài viết</span>
+                                        </div>
+                                        <h5 class="fw-bold mb-2">Quản lý Bài viết</h5>
+                                        <p class="text-muted small mb-4">
+                                            Soạn thảo, đăng tin tức hoạt động và chỉnh sửa nội dung bài viết.
+                                        </p>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                                        <a asp-action="Posts" class="btn btn-primary btn-sm px-3">
+                                            Danh sách bài viết
+                                        </a>
+                                        <a asp-action="Upsert" class="btn btn-outline-primary btn-sm">
+                                            + Viết bài
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (canCustomers)
+                    {
+                        <div class="col">
+                            <div class="card border rounded-3 h-100">
+                                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="mb-2">
+                                            <span class="badge bg-light text-dark border">Khách hàng</span>
+                                        </div>
+                                        <h5 class="fw-bold mb-2">Yêu cầu Khách hàng</h5>
+                                        <p class="text-muted small mb-4">
+                                            Theo dõi và cập nhật trạng thái xử lý yêu cầu báo giá (RFQ) / mẫu thử.
+                                        </p>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                                        <a asp-action="CustomerRequests" class="btn btn-primary btn-sm px-3">
+                                            Xem yêu cầu khách
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </main>
+
+    <!-- FOOTER GỌN GÀNG -->
+    <footer class="bg-white border-top py-3 mt-auto">
+        <div class="container-fluid px-3 px-md-4 d-flex flex-wrap justify-content-between align-items-center small text-muted">
+            <span>&copy; @DateTime.Now.Year <strong>Supertex Hosiery Manufacturing</strong> — Hệ thống quản trị nội bộ</span>
+            <span>Không gian làm việc phân quyền</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

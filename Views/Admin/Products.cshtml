@@ -1,0 +1,125 @@
+﻿@model IEnumerable<SupertexWeb.Models.Product>
+
+@{
+    ViewData["Title"] = "Quản lý Danh mục Sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<!-- Thanh tiêu đề và nút thêm mới -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-grip text-primary me-2"></i> Tổng quan sản phẩm</h2>
+        <p class="text-muted small mb-0">Quản lý nhanh các mẫu tất.</p>
+    </div>
+    <a href="/Admin/Create" class="btn btn-primary fw-semibold px-4 shadow-sm">
+        <i class="fa-solid fa-plus me-2"></i> Thêm sản phẩm mới
+    </a>
+</div>
+
+<!-- Hiển thị thông báo thành công nếu có -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Lưới sản phẩm (Grid View): Tự động co giãn theo thiết bị -->
+<!-- col-6 (2 cột trên điện thoại), col-md-4 (3 cột trên tablet nhỏ), col-lg-3 (4 cột), col-xl-2 (6 cột trên màn hình lớn) -->
+<div class="row g-3">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="card h-100 border-0 shadow-sm rounded-4 product-card position-relative overflow-hidden">
+
+                    <!-- Nút xóa nhanh góc trên bên phải (tùy chọn) -->
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm @item.Code không?');" class="position-absolute top-0 end-0 p-2 z-1">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-light btn-sm rounded-circle shadow-sm text-danger delete-btn" title="Xóa nhanh">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </form>
+
+                    <!-- Khung bấm vào để xem chi tiết / chỉnh sửa -->
+                    <a href="/Admin/Edit/@item.Id" class="text-decoration-none text-dark d-flex flex-column h-100">
+                        <!-- Hình ảnh thumbnail tỷ lệ vuông -->
+                        <div class="bg-light position-relative overflow-hidden" style="aspect-ratio: 1 / 1;">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="@item.Name" class="w-100 h-100 object-fit-cover product-img" />
+                            }
+                            else
+                            {
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                    <i class="fa-solid fa-image fs-2"></i>
+                                </div>
+                            }
+                            <!-- Badge hiển thị mã SKU nhỏ gọn góc trái -->
+                            <span class="position-absolute bottom-0 start-0 m-2 badge bg-dark bg-opacity-75 text-white small px-2 py-1">
+                                @item.Code
+                            </span>
+                        </div>
+
+                        <!-- Tên sản phẩm ở phía dưới -->
+                        <div class="card-body p-2.5 text-center d-flex flex-column justify-content-between">
+                            <h6 class="card-title text-dark fw-semibold small mb-1 text-truncate-2" title="@item.Name">
+                                @item.Name
+                            </h6>
+                            <div class="text-muted text-uppercase fs-8" style="font-size: 0.75rem;">
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">@item.Category</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 text-center py-5">
+                <div class="card-body">
+                    <i class="fa-solid fa-box-open fs-1 mb-3 d-block text-secondary opacity-50"></i>
+                    <p class="text-muted">Chưa có sản phẩm nào trong hệ thống.</p>
+                    <a href="/Admin/Create" class="btn btn-primary btn-sm fw-semibold px-4">
+                        <i class="fa-solid fa-plus me-1"></i> Thêm sản phẩm đầu tiên
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- CSS bổ sung để hiệu ứng rê chuột mượt mà -->
+<style>
+    .product-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+        }
+
+            .product-card:hover .product-img {
+                transform: scale(1.05);
+                transition: transform 0.3s ease;
+            }
+
+    .product-img {
+        transition: transform 0.3s ease;
+    }
+    /* Giới hạn tên sản phẩm tối đa 2 dòng để giao diện đều nhau */
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+        height: 2.6em;
+    }
+</style>

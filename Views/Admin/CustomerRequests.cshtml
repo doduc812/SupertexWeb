@@ -1,0 +1,135 @@
+﻿@model IEnumerable<SupertexWeb.Models.CustomerRequest>
+
+@{
+    ViewData["Title"] = "Quản lý Yêu cầu Khách hàng";
+    Layout = "_AdminLayout";
+    var currentType = ViewBag.CurrentType as string ?? "All";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-headset text-primary me-2"></i> Yêu Cầu Báo Giá & Nhận Mẫu Từ Khách Hàng</h2>
+        <p class="text-muted small mb-0">Quản lý toàn bộ thông tin RFQ và đăng ký nhận mẫu thử của đối tác quốc tế.</p>
+    </div>
+
+    <!-- Các nút lọc nhanh loại yêu cầu -->
+    <div class="btn-group shadow-sm" role="group">
+        <a href="/Admin/CustomerRequests" class="btn btn-sm @(currentType == "All" ? "btn-primary" : "btn-outline-primary")">Tất cả</a>
+        <a href="/Admin/CustomerRequests?type=Quote" class="btn btn-sm @(currentType == "Quote" ? "btn-primary" : "btn-outline-primary")">Yêu cầu Báo giá</a>
+        <a href="/Admin/CustomerRequests?type=Sample" class="btn btn-sm @(currentType == "Sample" ? "btn-primary" : "btn-outline-primary")">Nhận Mẫu thử</a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light text-uppercase extra-small fw-bold">
+                    <tr>
+                        <th class="py-3 ps-3 text-center" style="width: 11%;">Loại yêu cầu</th>
+                        <th class="py-3" style="width: 18%;">Khách hàng / Công ty</th>
+                        <th class="py-3 text-center" style="width: 14%;">Mã sản phẩm</th>
+                        <th class="py-3" style="width: 18%;">Thông tin liên hệ</th>
+                        <th class="py-3" style="width: 17%;">Chi tiết / Địa chỉ nhận</th>
+                        <th class="py-3 text-center" style="width: 10%;">Ngày gửi</th>
+                        <th class="py-3 text-center text-nowrap" style="width: 6%;">Xử lý</th>
+                        <th class="py-3 text-center pe-3 text-nowrap" style="width: 6%;">Xóa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            string rowStyle = item.IsProcessed ? "opacity: 0.55; background-color: #f8fafc;" : "";
+                            string nameWeight = item.IsProcessed ? "fw-normal text-secondary" : "fw-bold text-dark";
+
+                            <tr style="@rowStyle">
+                                <td class="ps-3 py-3 text-center">
+                                    @if (item.RequestType == "Quote")
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-pill extra-small fw-semibold text-nowrap">
+                                            <i class="fa-solid fa-file-invoice-dollar me-1"></i> Báo giá
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 rounded-pill extra-small fw-semibold text-nowrap">
+                                            <i class="fa-solid fa-box-open me-1"></i> Nhận mẫu
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <h6 class="@nameWeight mb-0">@item.CustomerName</h6>
+                                    <span class="text-muted small">@item.CompanyName (@item.Country)</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-semibold text-primary">@(string.IsNullOrEmpty(item.ProductCode) ? "Yêu cầu chung" : item.ProductCode)</span>
+                                    @if (!string.IsNullOrEmpty(item.Quantity))
+                                    {
+                                        <div class="text-muted extra-small">SL: @item.Quantity</div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="small text-dark"><i class="fa-regular fa-envelope me-1 text-muted"></i> @item.Email</div>
+                                    <div class="small text-secondary"><i class="fa-solid fa-phone me-1 text-muted"></i> @(string.IsNullOrEmpty(item.Phone) ? "Không có SĐT" : item.Phone)</div>
+                                </td>
+                                <td style="max-width: 200px;">
+                                    @if (item.RequestType == "Sample")
+                                    {
+                                        <div class="small text-dark fw-semibold"><i class="fa-solid fa-location-dot text-danger me-1"></i> @item.ShippingAddress</div>
+                                    }
+                                    <p class="text-muted small mb-0 text-truncate" title="@item.Message">@item.Message</p>
+                                </td>
+                                <td class="small text-secondary text-center">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                <!-- Cột Xử lý -->
+                                <td class="text-center">
+                                    <form asp-action="ToggleProcessed" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        @if (item.IsProcessed)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary rounded-3 px-2 py-1" title="Đã xử lý (Bấm để hủy)">
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-3 px-2 py-1" title="Bấm để đánh dấu đã xử lý">
+                                                <i class="fa-solid fa-check"></i>
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+
+                                <!-- Cột Xóa -->
+                                <td class="text-center pe-3">
+                                    <form asp-action="DeleteCustomerRequest" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa yêu cầu này không?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1" title="Xóa yêu cầu">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <p class="mb-0">Chưa có yêu cầu nào từ khách hàng.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

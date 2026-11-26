@@ -1,0 +1,132 @@
+﻿@model SupertexWeb.Models.CustomerRequest
+
+@{
+    ViewData["Title"] = "Yêu Cầu Báo Giá (RFQ) - Supertex";
+    var products = ViewBag.ProductList as List<SupertexWeb.Models.Product>;
+    var prefilledCode = ViewBag.SelectedCode as string;
+    var prefilledProduct = ViewBag.SelectedProduct as string;
+}
+@Html.AntiForgeryToken()
+
+<!-- Honeypot: ẩn hoàn toàn với người dùng thật, bot tự điền sẽ bị chặn -->
+<div style="position:absolute; left:-9999px; top:-9999px;" aria-hidden="true">
+    <label for="WebsiteTrap">Website</label>
+    <input type="text" id="WebsiteTrap" name="WebsiteTrap" tabindex="-1" autocomplete="off" />
+</div>
+
+<!-- Lưu thời điểm mở form (giây) để chặn bot gửi quá nhanh (< 2s) -->
+<input type="hidden" name="FormRenderedAt" value="@DateTimeOffset.UtcNow.ToUnixTimeSeconds()" />
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">Yêu Cầu Báo Giá (RFQ)</h2>
+                    <p class="text-muted">Nhận báo giá chi tiết sản phẩm tất dệt kim xuất khẩu từ nhà máy Supertex.</p>
+                </div>
+
+                <form asp-action="RequestQuote" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- LOGIC HIỂN THỊ SẢN PHẨM -->
+                    @if (!string.IsNullOrEmpty(prefilledCode))
+                    {
+                        <!-- Trường hợp 1: Khách bấm từ 1 sản phẩm cụ thể -> Tự động ghim cứng mã, khách không phải chọn lại -->
+                        <input type="hidden" name="ProductCode" value="@prefilledCode" />
+                        <div class="mb-4 p-3 bg-light rounded-3 border d-flex align-items-center">
+                            <div class="me-3 text-primary fs-4"><i class="fa-solid fa-box-archive"></i></div>
+                            <div>
+                                <span class="small text-muted d-block">Sản phẩm khách đang yêu cầu báo giá:</span>
+                                <strong class="text-dark fs-6">@prefilledProduct</strong>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Trường hợp 2: Khách vào từ nút chung (Hero) -> Mới hiện danh sách để khách tự chọn -->
+                        <div class="mb-3">
+                            <label asp-for="ProductCode" class="form-label fw-semibold">Chọn sản phẩm hoặc yêu cầu chung (OEM/ODM)</label>
+                            <select asp-for="ProductCode" class="form-select">
+                                <option value="">-- Chọn sản phẩm có sẵn hoặc yêu cầu OEM/ODM riêng --</option>
+                                @if (products != null)
+                                {
+                                    foreach (var prod in products)
+                                    {
+                                        <option value="@prod.Code">@prod.Name (Mã: @prod.Code - @prod.Category)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CustomerName" class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ tên của bạn..." required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold">Email liên hệ <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="name@company.com" required />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CompanyName" class="form-label fw-semibold">Tên Công ty / Doanh nghiệp</label>
+                            <input asp-for="CompanyName" class="form-control" placeholder="Tên công ty của bạn..." />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Country" class="form-label fw-semibold">Quốc gia / Khu vực</label>
+                            <input asp-for="Country" class="form-control" placeholder="Ví dụ: Vietnam, USA, Japan..." />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label fw-semibold">Số điện thoại / WhatsApp</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+84..." />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Quantity" class="form-label fw-semibold">Số lượng dự kiến (Pairs)</label>
+                            <input asp-for="Quantity" class="form-control" placeholder="Ví dụ: 10,000 đôi / đơn hàng" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShippingAddress" class="form-label fw-semibold">Địa chỉ nhận hàng / Cảng đích</label>
+                        <input asp-for="ShippingAddress" class="form-control" placeholder="Số nhà, tên đường, thành phố, quốc gia..." />
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Message" class="form-label fw-semibold">Yêu cầu cụ thể & Ghi chú</label>
+                        <textarea asp-for="Message" rows="4" class="form-control" placeholder="Nhập yêu cầu cụ thể về chất liệu (Bamboo, Cotton), tiêu chuẩn kiểm định..."></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">Gửi Yêu Cầu Báo Giá Ngay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thông Báo Thành Công -->
+@if (TempData["ShowSuccessModal"]?.ToString() == "True")
+{
+    <div class="modal fade show" id="successModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4">
+                <div class="modal-body">
+                    <div class="mb-3 text-success">
+                        <i class="bi bi-check-circle-fill display-3"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-2">@TempData["SuccessTitle"]</h3>
+                    <p class="text-muted mb-4">@TempData["SuccessMessage"]</p>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-success px-5 rounded-pill fw-bold">Về Trang Chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

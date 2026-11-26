@@ -1,0 +1,173 @@
+﻿@model SupertexWeb.Models.Product
+
+@{
+    ViewData["Title"] = "Thêm mới sản phẩm tất";
+    Layout = "_AdminLayout";
+}
+
+<!-- Nhúng thư viện Cropper.js CSS để làm tính năng cắt ảnh -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-square-plus text-primary me-2"></i> Thêm sản phẩm mới</h2>
+                <p class="text-muted small mb-0">Hệ thống tự động sinh mã SKU và hỗ trợ cắt chỉnh khung hình ảnh trực quan.</p>
+            </div>
+            <a href="/Admin/Products" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <!-- Chú ý: action trỏ đúng về /Admin/Create -->
+                <form asp-action="Create" method="post" enctype="multipart/form-data" id="productForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Ví dụ: Tất cotton kháng khuẩn cao cấp..." required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Category" class="form-label fw-semibold"></label>
+                            <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<SupertexWeb.Models.SockCategory>()"></select>
+                            <span asp-validation-for="Category" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Tải lên & Cắt hình ảnh sản phẩm</label>
+                            <input type="file" id="uploadImage" class="form-control" accept="image/*" />
+                            <div class="form-text small text-muted">Chọn ảnh để bật khung cắt chỉnh tỷ lệ vuông chuẩn.</div>
+                        </div>
+                    </div>
+
+                    <!-- Khu vực hiển thị công cụ cắt ảnh (Cropper Container) -->
+                    <div class="mb-3 row justify-content-center">
+                        <div class="col-md-8 text-center">
+                            <div class="img-container d-none border rounded p-2 bg-light shadow-sm" style="max-height: 350px; overflow: hidden;">
+                                <img id="imageToCrop" src="#" alt="Hình ảnh cần cắt" style="max-width: 100%; display: block;" />
+                            </div>
+                            <button type="button" id="btnCrop" class="btn btn-sm btn-success mt-2 d-none shadow-sm">
+                                <i class="fa-solid fa-crop me-1"></i> Xác nhận cắt vùng ảnh này
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khung xem trước ảnh sau khi đã cắt xong -->
+                    <div class="mb-3 text-center">
+                        <label class="form-label small fw-semibold text-muted d-block">Ảnh sản phẩm sau khi cắt:</label>
+                        <img id="imgPreview" src="#" alt="Chưa cắt ảnh" class="rounded border d-none shadow-sm" style="max-height: 140px; object-fit: cover;" />
+                        <!-- Input ẩn chứa dữ liệu chuỗi Base64 của ảnh đã cắt để gửi về Controller -->
+                        <input type="hidden" name="croppedImageBase64" id="croppedImageBase64" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Material" class="form-label fw-semibold"></label>
+                            <input asp-for="Material" class="form-control" placeholder="Ví dụ: 80% Cotton" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Size" class="form-label fw-semibold"></label>
+                            <input asp-for="Size" class="form-control" placeholder="Ví dụ: FreeSize, 39-42" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Color" class="form-label fw-semibold"></label>
+                            <input asp-for="Color" class="form-control" placeholder="Ví dụ: Trắng, Đen, Xám" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Nhập mô tả chi tiết tính năng, đóng gói..."></textarea>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="IsActive" checked>
+                                <label class="form-check-label fw-semibold" asp-for="IsActive">Hiển thị sản phẩm</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="IsFeatured">
+                                <label class="form-check-label fw-semibold" asp-for="IsFeatured">Đánh dấu sản phẩm nổi bật</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="py-2 btn btn-primary fw-semibold shadow-sm">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Lưu sản phẩm vào hệ thống
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nhúng thư viện Cropper.js JS -->
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        let cropper;
+        const uploadImage = document.getElementById('uploadImage');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const imgContainer = document.querySelector('.img-container');
+        const btnCrop = document.getElementById('btnCrop');
+        const imgPreview = document.getElementById('imgPreview');
+        const croppedImageBase64 = document.getElementById('croppedImageBase64');
+
+        // Khi người dùng chọn file ảnh
+        uploadImage.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imageToCrop.src = event.target.result;
+                    imgContainer.classList.remove('d-none');
+                    btnCrop.classList.remove('d-none');
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    // Khởi tạo công cụ cắt ảnh tỷ lệ vuông 1:1 (hoặc tự do tùy chỉnh)
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1 / 1, // Tỷ lệ vuông chuẩn cho ảnh sản phẩm
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Khi người dùng bấm nút xác nhận cắt ảnh
+        btnCrop.addEventListener('click', function() {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 600,
+                    height: 600,
+                });
+
+                // Chuyển kết quả cắt thành chuỗi Base64
+                const base64Image = canvas.toDataURL('image/jpeg');
+                imgPreview.src = base64Image;
+                imgPreview.classList.remove('d-none');
+                croppedImageBase64.value = base64Image;
+
+                // Ẩn khung cắt sau khi đã xác nhận xong
+                imgContainer.classList.add('d-none');
+                btnCrop.classList.add('d-none');
+                alert('Đã cắt và lưu vùng ảnh thành công! Bạn có thể tiếp tục bấm lưu sản phẩm.');
+            }
+        });
+    </script>
+}
